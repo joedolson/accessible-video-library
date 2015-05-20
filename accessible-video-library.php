@@ -5,13 +5,13 @@ Plugin URI: http://www.joedolson.com/accessible-video-library/
 Description: Accessible video library manager. Write transcripts and upload captions. 
 Author: Joseph C Dolson
 Author URI: http://www.joedolson.com
-Version: 1.1.0
+Version: 1.1.1
 */
 
 /*  Copyright 2013-2015  Joe Dolson (email : joe@joedolson.com) */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-$avl_version = '1.1.0';
+$avl_version = '1.1.1';
 // Filters
 add_filter( 'post_updated_messages', 'avl_posttypes_messages');
 
@@ -59,7 +59,7 @@ function avl_update_check() {
 // Add the administrative settings to the "Settings" menu.
 function avl_add_support_page() {
     if ( function_exists( 'add_submenu_page' ) ) {
-		$submenu_page = add_submenu_page( 'edit.php?post_type=avl-video', __('Accessible Video Library > Help','accessible-video-library'), 'Video Help', 'edit_posts', 'avl-help', 'avl_support_page' );
+		$submenu_page = add_submenu_page( 'edit.php?post_type=avl-video', __('Accessible Video Library > Help & Settings','accessible-video-library'), 'Video Help/Settings', 'edit_posts', 'avl-help', 'avl_support_page' );
 		add_action( 'admin_head-'. $submenu_page, 'avl_styles' );
     }
 }
@@ -76,6 +76,8 @@ function avl_support_page() { ?>
 if ( isset( $_POST['avl_settings'] ) ) {
 	$responsive = ( isset( $_POST['avl_responsive'] ) ) ? 'true' : 'false';
 	update_option( 'avl_responsive', $responsive );
+	$avl_default_caption = ( isset( $_POST['avl_default_caption'] ) ) ? $_POST['avl_default_caption'] : '';
+	update_option( 'avl_default_caption', $avl_default_caption );
 	echo "<div class='notice updated'><p>".__( 'Accessible Video Library Settings Updated', 'accessible-video-library' )."</p></div>";
 }
 ?>
@@ -88,6 +90,26 @@ if ( isset( $_POST['avl_settings'] ) ) {
 				<h3><?php _e('Help','accessible-video-library'); ?></h3>
 					<div class="inside">
 					<form action='<?php echo admin_url('edit.php?post_type=avl-video&page=avl-help'); ?>' method='post'>
+						<p>
+						<label for="avl_default_caption"><?php _e( 'Enable Subtitles by Default', 'accessible-video-library' ); ?></label>
+						<select id="avl_default_caption" name="avl_default_caption">
+						<?php
+						$output = '';
+						$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
+						foreach ( $fields as $key => $field ) {
+							if ( $field['type'] == 'subtitle' || $field['type'] == 'caption' ) {
+								$label = esc_attr( $field['label'] );
+								$value = esc_attr( $key );
+								$selected = selected( $value, get_option( 'avl_default_caption' ), false );
+								if ( $value ) {
+									$output .= "<option value='$value'$selected>$label</option>";
+								}
+							}
+						}
+						echo $output;
+						?>
+						</select>
+						</p>
 						<p>
 							<input type='checkbox' name='avl_responsive' id='avl_responsive' value='true'<?php echo ( get_option( 'avl_responsive' ) == 'true' ) ? ' checked="checked"' : ''; ?> /> <label for='avl_responsive'><?php _e( 'Responsive Videos','accessible-video-library' ); ?></label>
 						</p>
@@ -374,9 +396,21 @@ add_action( 'wp_enqueue_scripts', 'avl_enqueue_scripts' );
 function avl_enqueue_scripts() {
 	wp_register_style( 'avl-mediaelement', plugins_url( 'css/avl-mediaelement.css', __FILE__ ) );
 	wp_enqueue_style( 'avl-mediaelement' );
-	wp_deregister_script( 'wp-mediaelement');
+	wp_deregister_script( 'wp-mediaelement' );
 	wp_register_script( 'wp-mediaelement', plugins_url( 'js/avl-mediaelement.js', __FILE__ ), array( 'jquery', 'mediaelement' ) );
-	wp_localize_script( 'wp-mediaelement', '_avlmejsSettings', array( 'pluginPath'=>includes_url( 'js/mediaelement/','relative'), 'alwaysShowControls'=>'true' ) );
+	$args = apply_filters( 'avl_mediaelement_args', array( 
+			'pluginPath' => includes_url( 'js/mediaelement/','relative'),
+			'alwaysShowControls'=>'true',
+		) );
+	wp_localize_script( 'wp-mediaelement', '_avlmejsSettings', $args );
+}
+
+add_filter( 'avl_mediaelement_args', 'avl_options' );
+function avl_options( $args ) {
+	if ( get_option( 'avl_default_caption' ) != '' ) {
+		$args['startLanguage'] = strtolower( get_option( 'avl_default_caption' ) );
+	}
+	return $args;
 }
 
 add_action( 'admin_enqueue_scripts', 'avl_enqueue_admin_scripts' );
@@ -659,8 +693,9 @@ function avl_video( $id, $height=false, $width=false ) {
 		$thumb = wp_get_attachment_image_src( get_post_thumbnail_id( $id ), 'thumbnail_name' );
 		$image = $thumb[0]; // thumbnail url
 	}	
-	if ( !$image && $youtube ) { 
-		$youtube = str_replace( "http://youtu.be/",'',$youtube );
+	if ( !$image && $youtube ) {
+		$replace = array( "http://youtu.be/", "http://www.youtube.com/watch?v=", "https://youtu.be/",  "https://www.youtube.com/watch?v=" );
+		$youtube = str_replace( $replace,'',$youtube );
 		$image = "http://img.youtube.com/vi/$youtube/0.jpg"; 
 	}
 	//$audio_desc = avl_get_custom_field( '_audio_desc', $id ); MediaElements.js does not support audio description.
@@ -700,7 +735,7 @@ function avl_video( $id, $height=false, $width=false ) {
 			}
 			wp_enqueue_style( 'wp-mediaelement' );
 			wp_enqueue_script( 'wp-mediaelement' );
-			$html = '<div style="width: '.$width.'; max-width: 100%;">';
+			$html = '<div class="avl_media_container" style="width: '.$width.'; height: '.$height.'; max-width: 100%;">';
 			$html .= "<!--[if lt IE 9]><script>document.createElement('video');</script><![endif]-->";
 			$html .= '<video class="wp-video-shortcode" id="video-'.$id.'-1" width="'.$width.'" height="'.$height.'" poster="http://img.youtube.com/vi/'.$youtube.'/0.jpg" preload="metadata" controls="controls">
 						<a href="http://youtu.be/'.$youtube.'">http://youtu.be/'.$youtube.'</a>
@@ -718,13 +753,14 @@ function avl_add_a11y( $html, $id=false, $captions='', $youtube='' ) {
 	$fields = apply_filters( 'avl_add_custom_fields', get_option('avl_fields') );
 	if ( $captions ) {
 		$html = str_replace( '</video>','<track kind="subtitles" src="'.$captions.'" label="'.__( 'Captions','accessible-video-library').'" srclang="'.get_bloginfo('language').'" /></video>', $html );
-		foreach ( $fields as $key => $field ) {
-			if ( $field['type'] == 'subtitle' ) {
-				$label = esc_attr( $field['label'] );
-				$value = get_post_meta( $id, '_'.$key, true );
-				if ( $value ) {
-					$html = str_replace( '</video>','<track kind="subtitles" src="'.$value.'" label="'.$label.'" srclang="'.$key.'" /></video>', $html );
-				}
+	}
+	
+	foreach ( $fields as $key => $field ) {
+		if ( $field['type'] == 'subtitle' ) {
+			$label = esc_attr( $field['label'] );
+			$value = get_post_meta( $id, '_'.$key, true );
+			if ( $value ) {
+				$html = str_replace( '</video>','<track kind="subtitles" src="'.$value.'" label="'.$label.'" srclang="'.$key.'" /></video>', $html );
 			}
 		}
 	}

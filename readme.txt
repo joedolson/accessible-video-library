@@ -2,10 +2,10 @@
 Contributors: joedolson
 Donate link: http://www.joedolson.com/donate.php
 Tags: a11y, video, library, manager, captions, subtitles, transcription, i18n, l10n
-Requires at least: 3.7.0
-Tested up to: 4.0
+Requires at least: 4.0
+Tested up to: 4.2.2
 License: GPLv2 or later
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 
 Generates a library for your video information where you can upload caption files, include transcripts, and upload subtitles for other languages.
 
@@ -24,7 +24,7 @@ Additionally, you can upload multiple formats of your video files to improve bro
 = Translations =
 
 Available languages (in order of completeness):
-German, French
+German, Portuguese (Brazil), Polish, French, Dutch
 
 Visit the [Accessible Video Library translations site](http://translate.joedolson.com/projects/accessible-video-library) to check the progress of a translation.
 
@@ -42,8 +42,14 @@ Translating my plug-ins is always appreciated. Visit <a href="http://translate.j
 
 = 1.1.1 =
 
-* Options to configure settings in MEjs arguments for WP 4.0; including http://stackoverflow.com/questions/22424980/mediaelement-js-default-video-captions-to-on
-* Added translations: German, French
+* Filter on MEJS settings 'avl_mediaelement_args'
+* Option to enable subtitle/caption by default.
+* Bug fix: URL replacement supports broader variety of YouTube URLs
+* Bug fix: No height on video player in some contexts.
+* Bug fix: Subtitles would only show up if Captions were also added.
+* Updated mediaelementjs init file.
+* Now requiring WP version 4.0
+* Added translations: German, French, Portuguese (Brazil), Polish, Dutch
 
 = 1.1.0 =
 
@@ -110,5 +116,4 @@ Go to Settings > Permalinks and update your permalinks format -- the issue is th
 
 == Upgrade Notice ==
 
-= 1.1.0 =
-Responsive video, Miscellaneous bug fixes.
+1.1.1: Translations, Miscellaneous bug fixes.
