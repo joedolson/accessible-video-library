@@ -2,10 +2,11 @@
 Contributors: joedolson
 Donate link: http://www.joedolson.com/donate.php
 Tags: a11y, video, library, manager, captions, subtitles, transcription, i18n, l10n
-Requires at least: 4.0
-Tested up to: 4.2.2
+Requires at least: 4.2
+Tested up to: 4.6
 License: GPLv2 or later
-Stable tag: 1.1.1
+Text domain: accessible-video-library
+Stable tag: 1.1.3
 
 Generates a library for your video information where you can upload caption files, include transcripts, and upload subtitles for other languages.
 
@@ -39,6 +40,16 @@ Translating my plug-ins is always appreciated. Visit <a href="http://translate.j
 3. Start uploading your videos and captions!
 
 == Changelog ==
+
+= 1.1.3 =
+
+* Updated tested to 4.6
+* Bug fix: must include a 'src' parameter; format-only parameters no longer generate video code.
+
+= 1.1.2 =
+
+* Updated tested to 
+* Fix textdomains
 
 = 1.1.1 =
 

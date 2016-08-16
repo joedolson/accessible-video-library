@@ -4,19 +4,26 @@ Plugin Name: Accessible Video Library
 Plugin URI: http://www.joedolson.com/accessible-video-library/
 Description: Accessible video library manager. Write transcripts and upload captions. 
 Author: Joseph C Dolson
+Text Domain: accessible-video-library
+Domain Path: /lang
 Author URI: http://www.joedolson.com
-Version: 1.1.1
+Version: 1.1.3
 */
 
-/*  Copyright 2013-2015  Joe Dolson (email : joe@joedolson.com) */
+/*  Copyright 2013-2016  Joe Dolson (email : joe@joedolson.com) */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-$avl_version = '1.1.1';
+$avl_version = '1.1.3';
 // Filters
 add_filter( 'post_updated_messages', 'avl_posttypes_messages');
 
 // Enable internationalisation
-load_plugin_textdomain( 'avl-video',false, dirname( plugin_basename( __FILE__ ) ) . '/lang' ); 
+add_action( 'plugins_loaded', 'avl_load_textdomain' );
+function avl_load_textdomain() {
+	load_plugin_textdomain( 'accessible-video-library', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' ); 
+
+}
+// Enable internationalisation
 
 // Actions
 add_action( 'init', 'avl_taxonomies', 0);
@@ -276,7 +283,7 @@ $plugins_string
 		<input type='checkbox' name='has_donated' id='has_donated' value='on' /> <label for='has_donated'>".__('I have <a href="http://www.joedolson.com/donate/">made a donation to help support this plug-in</a>.','accessible-video-library')."</label>
 		</p>
 		<p>
-		<label for='support_request'>Support Request:</label><br /><textarea name='support_request' required aria-required='true' id='support_request' cols='80' rows='10'>".stripslashes($request)."</textarea>
+		<label for='support_request'>Support Request:</label><br /><textarea name='support_request' required aria-required='true' id='support_request' cols='80' rows='10' class='widefat'>".stripslashes($request)."</textarea>
 		</p>
 		<p>
 		<input type='submit' value='".__('Send Support Request','accessible-video-library')."' name='avl_support' class='button-primary' />
@@ -376,7 +383,7 @@ function avl_add_inner_box() {
 		$choices = ( isset($value['choices']) )?$value['choices']:false;
 		$format .= avl_create_field( $key, $label, $input, $post_id, $choices );
 	}
-	$shortcode = "<div class='avl-shortcode'><label for='shortcode'>".__('Shortcode','avl-video').":</label> <input type='text' id='shortcode' disabled value='[avl_video id=\"$post_id\"]' /></div>";
+	$shortcode = "<div class='avl-shortcode'><label for='shortcode'>".__('Shortcode','accessible-video-library').":</label> <input type='text' id='shortcode' disabled value='[avl_video id=\"$post_id\"]' /></div>";
 	echo '<div class="avl_post_fields">'.$shortcode.$format.'</div>';
 }
 
@@ -512,7 +519,7 @@ function avl_posttypes() {
 			$labels = array(
 				'name' => $value[3],
 				'singular_name' => $value[2],
-				'add_new' => __( 'Add New' , 'avl-video' ),
+				'add_new' => __( 'Add New' , 'accessible-video-library' ),
 				'add_new_item' => sprintf( __( 'Create New %s','accessible-video-library' ), $value[2] ),
 				'edit_item' => sprintf( __( 'Modify %s','accessible-video-library' ), $value[2] ),
 				'new_item' => sprintf( __( 'New %s','accessible-video-library' ), $value[2] ),
@@ -548,8 +555,10 @@ function avl_replace_content( $content, $id=false ) {
 	if ( !is_main_query() && !$id ) { return $content; }
 	if ( is_singular( 'avl-video' ) && !isset( $_GET['transcript'] ) ) {
 		$id = get_the_ID();
+		
 		return avl_video( $id );
 	} else {
+		
 		return $content;
 	}
 }
@@ -668,7 +677,7 @@ function avl_is_url($url) {
 	return preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $url);
 }
 
-function avl_video( $id, $height=false, $width=false ) {
+function avl_video( $id, $height=false, $width=false ) {	
 	global $content_width;
 	$fields = apply_filters( 'avl_add_custom_fields', get_option('avl_fields') );
 	$yt_url = $image = $has_video = false;
@@ -683,10 +692,13 @@ function avl_video( $id, $height=false, $width=false ) {
 		$yt_url = "http://youtu.be/$youtube"; 
 	}
 	$params = '';	
+	$first = true;	
 	foreach ( $fields as $k => $field ) { // need to id videos
 		if ( $field['type'] == 'video' && $k != 'external' ) {
+			$format = ( $first ) ? 'src' : $field['format'];
 			${$field['format']} = avl_get_custom_field( '_'.$field['format'],$id );
-			if ( ${$field['format']} ) { $params .= $field['format'].'="'.${$field['format']}.'" '; $has_video = true; }
+			if ( ${$field['format']} ) { $params .= $format.'="'.${$field['format']}.'" '; $has_video = true; }
+			$first = false;
 		}
 	}
 	if ( has_post_thumbnail( $id ) ) {
@@ -729,13 +741,14 @@ function avl_video( $id, $height=false, $width=false ) {
 			if ( get_option( 'avl_responsive' ) != 'true' ) {
 				$content_width = ( !$content_width ) ? apply_filters( 'avl_default_width', 640 ) : $content_width; 
 				$width = ( $width ) ? $width : $content_width ;
-				$height = ( $height ) ? $height : round( $content_width / apply_filters( 'avl_default_aspect', 1.6 ) ) ;
+				$height = ( $height ) ? $height : round( $content_width / apply_filters( 'avl_default_aspect', 1.6 ) );
 				$width = $width . 'px';
 				$height = $height . 'px';
+				$container_height = ( $height + 50 ) . 'px';
 			}
 			wp_enqueue_style( 'wp-mediaelement' );
 			wp_enqueue_script( 'wp-mediaelement' );
-			$html = '<div class="avl_media_container" style="width: '.$width.'; height: '.$height.'; max-width: 100%;">';
+			$html = '<div class="avl_media_container" style="width: '.$width.'; height: '.$container_height.'; max-width: 100%;">';
 			$html .= "<!--[if lt IE 9]><script>document.createElement('video');</script><![endif]-->";
 			$html .= '<video class="wp-video-shortcode" id="video-'.$id.'-1" width="'.$width.'" height="'.$height.'" poster="http://img.youtube.com/vi/'.$youtube.'/0.jpg" preload="metadata" controls="controls">
 						<a href="http://youtu.be/'.$youtube.'">http://youtu.be/'.$youtube.'</a>
@@ -744,12 +757,14 @@ function avl_video( $id, $height=false, $width=false ) {
 					</div>';
 		}
 	}
+	
 	$html = apply_filters( 'avl_implementation', $html, $id, $captions, $yt_url ).$transcript;
+	
 	return $html;
 }
 
 add_filter( 'avl_implementation', 'avl_add_a11y', 10, 4 );
-function avl_add_a11y( $html, $id=false, $captions='', $youtube='' ) {
+function avl_add_a11y( $html, $id=false, $captions='', $youtube='' ) {	
 	$fields = apply_filters( 'avl_add_custom_fields', get_option('avl_fields') );
 	if ( $captions ) {
 		$html = str_replace( '</video>','<track kind="subtitles" src="'.$captions.'" label="'.__( 'Captions','accessible-video-library').'" srclang="'.get_bloginfo('language').'" /></video>', $html );
@@ -764,12 +779,14 @@ function avl_add_a11y( $html, $id=false, $captions='', $youtube='' ) {
 			}
 		}
 	}
+	
 	if ( $youtube ) { // this is kludgy, but it's what I've got for now.
 		$att_source = content_url() . '/uploads/'. $youtube;
 		$html = str_replace( $att_source, $youtube, $html );
 		$html = str_replace( '<source type="" src="'.$youtube.'" />', '', $html );	
 		$html = str_replace( '</video>','<source type="video/youtube" src="'.$youtube.'" /></video>', $html );
 	}
+	
 	return $html;
 }
 
