@@ -41,6 +41,12 @@ Translating my plug-ins is always appreciated. Visit <a href="http://translate.j
 
 == Changelog ==
 
+= 1.1.4 =
+
+* Updated tested to 4.9
+* Bug fix: exclude audio CSS
+* 
+
 = 1.1.3 =
 
 * Updated tested to 4.6
