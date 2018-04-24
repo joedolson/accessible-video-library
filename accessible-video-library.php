@@ -7,10 +7,10 @@ Author: Joseph C Dolson
 Text Domain: accessible-video-library
 Domain Path: /lang
 Author URI: http://www.joedolson.com
-Version: 1.1.3
+Version: 1.1.4
 */
 
-/*  Copyright 2013-2016  Joe Dolson (email : joe@joedolson.com) */
+/*  Copyright 2013-2018 Joe Dolson (email : joe@joedolson.com) */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -28,36 +28,63 @@ function avl_load_textdomain() {
 // Enable internationalisation
 
 // Actions
-add_action( 'init', 'avl_taxonomies', 0);
+add_action( 'init', 'avl_taxonomies', 0 );
 add_action( 'init', 'avl_posttypes' );
 add_action( 'admin_menu', 'avl_add_outer_box' );
 
 register_activation_hook( __FILE__, 'avl_plugin_activated' );
+/**
+ * Define fields on activation.
+ */
 function avl_plugin_activated() {
 	$avl_fields = array(
-					'captions'=>array( 'label'=>__('Captions (SRT/DFXP)','accessible-video-library'),'input'=>'upload', 'format'=>'srt', 'type'=>'caption' ),
-					//'audio_desc'=>array( 'Audio Description (mp3)','upload', 'audio' ),
-					'mp4'=>array( 'label'=>__('Video (mp4)','accessible-video-library'),'input'=>'upload', 'format'=>'mp4', 'type'=>'video' ),
-					'ogv'=>array( 'label'=>__('Video (ogv)','accessible-video-library'),'input'=>'upload', 'format'=>'ogv', 'type'=>'video' ),
-					'external'=>array( 'label'=>__('YouTube Video URL','accessible-video-library'),'input'=>'text', 'format'=>'youtube', 'type'=>'video' ),
-					//'config'=>array( 'Configuration','text','video' )
-				);
+		'captions' => array(
+			'label'  => __( 'Captions (SRT/DFXP)', 'accessible-video-library' ),
+			'input'  => 'upload',
+			'format' => 'srt',
+			'type'   => 'caption',
+		),
+		'mp4'      =>array(
+			'label'  => __( 'Video (mp4)', 'accessible-video-library' ),
+			'input'  => 'upload',
+			'format' => 'mp4',
+			'type'   => 'video',
+		),
+		'ogv'      => array( 
+			'label'  => __( 'Video (ogv)', 'accessible-video-library' ),
+			'input'  => 'upload',
+			'format' => 'ogv',
+			'type'   => 'video',
+		),
+		'external' => array( 
+			'label'  => __( 'YouTube Video URL','accessible-video-library' ),
+			'input'  => 'text',
+			'format' => 'youtube',
+			'type'   => 'video',
+		),
+	);
 	add_option( 'avl_fields', $avl_fields );
 	flush_rewrite_rules();
 }
+
 register_deactivation_hook( __FILE__, 'avl_plugin_activated' );
+/**
+ * Handle deactivation.
+ */
 function avl_plugin_deactivated() {
 	flush_rewrite_rules();
 }
 
 add_action( 'plugins_loaded', 'avl_update_check' );
-
+/**
+ * Check for update needs.
+ */
 function avl_update_check() {
 	global $avl_version;
-	if ( version_compare( $avl_version, '1.0.4', '<') ) {
+	if ( version_compare( $avl_version, '1.0.4', '<' ) ) {
 		$posts = get_posts( array( 'post_type' => 'avl-video' ) );
 		foreach ( $posts as $post ) {
-			if ( get_post_field( 'post_content', $post->ID, 'raw' ) == '' ) {
+			if ( '' == get_post_field( 'post_content', $post->ID, 'raw' ) ) {
 				add_post_meta( $post->ID, '_notranscript', 'true' );
 			}
 		}
@@ -65,30 +92,39 @@ function avl_update_check() {
 	update_option( 'avl_version', $avl_version );
 }
 
-// Add the administrative settings to the "Settings" menu.
+/**
+ * Add the administrative settings to the "Settings" menu.
+ */
 function avl_add_support_page() {
-    if ( function_exists( 'add_submenu_page' ) ) {
-		$submenu_page = add_submenu_page( 'edit.php?post_type=avl-video', __('Accessible Video Library > Help & Settings','accessible-video-library'), 'Video Help/Settings', 'edit_posts', 'avl-help', 'avl_support_page' );
-		add_action( 'admin_head-'. $submenu_page, 'avl_styles' );
-    }
-}
-function avl_styles() {
-	if ( $_GET['page'] == "avl-help" ) {
-		echo '<link type="text/css" rel="stylesheet" href="'.plugins_url('avl-styles.css', __FILE__ ).'" />';
+	if ( function_exists( 'add_submenu_page' ) ) {
+		$submenu_page = add_submenu_page( 'edit.php?post_type=avl-video', __( 'Accessible Video Library > Help & Settings', 'accessible-video-library' ), __( 'Video Help/Settings', 'accessible-video-library' ), 'edit_posts', 'avl-help', 'avl_support_page' );
+		add_action( 'admin_head-' . $submenu_page, 'avl_styles' );
 	}
 }
-add_action( 'admin_menu', 'avl_add_support_page' );
 
-function avl_support_page() { ?>
-
-<?php
-if ( isset( $_POST['avl_settings'] ) ) {
-	$responsive = ( isset( $_POST['avl_responsive'] ) ) ? 'true' : 'false';
-	update_option( 'avl_responsive', $responsive );
-	$avl_default_caption = ( isset( $_POST['avl_default_caption'] ) ) ? $_POST['avl_default_caption'] : '';
-	update_option( 'avl_default_caption', $avl_default_caption );
-	echo "<div class='notice updated'><p>".__( 'Accessible Video Library Settings Updated', 'accessible-video-library' ).'</p></div>';
+/**
+ * Add plugin styles to admin.
+ */
+function avl_styles() {
+	if ( 'avl-help' == $_GET['page'] ) {
+		echo '<link type="text/css" rel="stylesheet" href="' . plugins_url( 'avl-styles.css', __FILE__ ) . '" />';
+	}
 }
+
+add_action( 'admin_menu', 'avl_add_support_page' );
+/**
+ * Build support & settings page.
+ */
+function avl_support_page() { 
+	if ( isset( $_POST['avl_settings'] ) ) {
+		$responsive = ( isset( $_POST['avl_responsive'] ) ) ? 'true' : 'false';
+		update_option( 'avl_responsive', $responsive );
+		
+		$avl_default_caption = ( isset( $_POST['avl_default_caption'] ) ) ? $_POST['avl_default_caption'] : '';
+		update_option( 'avl_default_caption', $avl_default_caption );
+		
+		echo "<div class='notice updated'><p>" . __( 'Accessible Video Library Settings Updated', 'accessible-video-library' ) . '</p></div>';
+	}
 ?>
 <div class="wrap avl-settings" id="accessible-video-library">
 <h2><?php _e('Accessible Video Library','accessible-video-library' ); ?></h2>

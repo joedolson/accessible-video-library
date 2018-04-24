@@ -1,12 +1,12 @@
 === Accessible Video Library ===
 Contributors: joedolson
-Donate link: http://www.joedolson.com/donate.php
-Tags: a11y, video, library, manager, captions, subtitles, transcription, i18n, l10n
+Donate link: https://www.joedolson.com/donate/
+Tags: a11y, video, captions, subtitles, transcription, i18n, l10n
 Requires at least: 4.2
-Tested up to: 4.6
+Tested up to: 4.9
 License: GPLv2 or later
 Text domain: accessible-video-library
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 
 Generates a library for your video information where you can upload caption files, include transcripts, and upload subtitles for other languages.
 
