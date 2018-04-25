@@ -125,16 +125,16 @@ function avl_support_page() {
 		
 		echo "<div class='notice updated'><p>" . __( 'Accessible Video Library Settings Updated', 'accessible-video-library' ) . '</p></div>';
 	}
-?>
+	?>
 <div class="wrap avl-settings" id="accessible-video-library">
-<h2><?php _e('Accessible Video Library','accessible-video-library' ); ?></h2>
+<h1><?php _e('Accessible Video Library','accessible-video-library' ); ?></h1>
 	<div id="avl_settings_page" class="postbox-container" style="width: 70%">
 		<div class='metabox-holder'>
 			<div class="settings meta-box-sortables">
 				<div class="postbox" id="settings">
-				<h3><?php _e('Help','accessible-video-library' ); ?></h3>
+				<h2 class='hndle'><?php _e('Help','accessible-video-library' ); ?></h2>
 					<div class="inside">
-					<form action='<?php echo admin_url('edit.php?post_type=avl-video&page=avl-help' ); ?>' method='post'>
+					<form action='<?php echo admin_url( 'edit.php?post_type=avl-video&page=avl-help' ); ?>' method='post'>
 						<p>
 						<label for="avl_default_caption"><?php _e( 'Enable Subtitles by Default', 'accessible-video-library' ); ?></label>
 						<select id="avl_default_caption" name="avl_default_caption">
@@ -142,9 +142,9 @@ function avl_support_page() {
 						$output = '';
 						$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
 						foreach ( $fields as $key => $field ) {
-							if ( $field['type'] == 'subtitle' || $field['type'] == 'caption' ) {
-								$label = esc_attr( $field['label'] );
-								$value = esc_attr( $key );
+							if ( 'subtitle' == $field['type'] || 'caption' ==  $field['type'] ) {
+								$label    = esc_html( $field['label'] );
+								$value    = esc_attr( $key );
 								$selected = selected( $value, get_option( 'avl_default_caption' ), false );
 								if ( $value ) {
 									$output .= "<option value='$value'$selected>$label</option>";
@@ -156,7 +156,7 @@ function avl_support_page() {
 						</select>
 						</p>
 						<p>
-							<input type='checkbox' name='avl_responsive' id='avl_responsive' value='true'<?php echo ( get_option( 'avl_responsive' ) == 'true' ) ? ' checked="checked"' : ''; ?> /> <label for='avl_responsive'><?php _e( 'Responsive Videos','accessible-video-library' ); ?></label>
+							<input type='checkbox' name='avl_responsive' id='avl_responsive' value='true'<?php checked( get_option( 'avl_responsive' ), 'true' ); ?> /> <label for='avl_responsive'><?php _e( 'Responsive Videos', 'accessible-video-library' ); ?></label>
 						</p>
 						<p>
 							<input type='submit' name='avl_settings' value='<?php _e( 'Update Settings', 'accessible-video-library' ); ?>' />
@@ -168,17 +168,23 @@ function avl_support_page() {
 					_e( 'The use of videos from your video library is largely through shortcodes, documented below.','accessible-video-library' );
 					?>
 					</p>
-					<h4><?php _e('Shortcodes','accessible-video-library' ); ?></h4>
-					<p><input type='text' size="60" disabled value='[avl_video id="$video_id" width="$width" height="$height"]' /></p>
+					<h3><?php _e('Shortcodes','accessible-video-library' ); ?></h3>
+					<p>
+						<input type='text' size="60" disabled value='[avl_video id="$video_id" width="$width" height="$height"]' /></p>
 					<p>
 					<?php
 						_e( 'The only required field is the ID of the video you want to display. You can also enter a width and a height, and the video will be displayed with those dimensions.' );
 					?>
 					</p>
-					<h4><?php _e( 'Custom Filters','accessible-video-library' ); ?></h4>
-					<p><?php _e( 'Out of the box, Accessible Video Library supports captions, ogv and mp4 video formats, the addition of Spanish subtitles, and a YouTube video reference.'); _e( 'Using a custom WordPress filter, you can easily add support for additional video formats and additional subtitle languages.' ); ?></p>
+					<h3><?php _e( 'Custom Filters','accessible-video-library' ); ?></h3>
+					<p>
+					<?php
+						_e( 'Out of the box, Accessible Video Library supports captions, ogv and mp4 video formats, the addition of Spanish subtitles, and a YouTube video reference.' ); 
+						_e( 'Using a custom WordPress filter, you can add support for more formats and languages.' ); 
+					?>
+					</p>
 					<p><?php printf( __( 'Read more about <a href="%s">WordPress filters</a>', 'accessible-video-player' ), 'http://codex.wordpress.org/Function_Reference/add_filter' ); ?></p>
-					<h4><?php _e( 'Add Video Formats', 'accessible-video-library' ); ?></h4>
+					<h3><?php _e( 'Add Video Formats', 'accessible-video-library' ); ?></h3>
 <pre>
 add_filter( 'avl_add_custom_fields', 'your_function_add_formats' );
 /**
@@ -192,7 +198,7 @@ function your_function_add_formats( $fields ) {
 }
 </pre>
 
-					<h4><?php _e( 'Add Additional Languages', 'accessible-video-library' ); ?></h4>
+					<h3><?php _e( 'Add Additional Languages', 'accessible-video-library' ); ?></h3>
 <pre>
 add_filter( 'avl_add_custom_fields', 'your_function_add_languages' );
 function your_function_add_formats( $fields ) {
@@ -205,7 +211,7 @@ function your_function_add_formats( $fields ) {
 			</div>
 			<div class="avl-support meta-box-sortables">
 				<div class="postbox" id="get-support">
-				<h3><?php _e('Get Plug-in Support','accessible-video-library' ); ?></h3>
+				<h2 class='hndle'><?php _e( 'Get Plug-in Support','accessible-video-library' ); ?></h2>
 					<div class="inside">
 					<?php avl_get_support_form(); ?>
 					</div>
@@ -220,38 +226,38 @@ function your_function_add_formats( $fields ) {
 
 
 function avl_get_support_form() {
-global $current_user, $avl_version;
-get_currentuserinfo();
-	// send fields for Accessible Video Library
+	global $avl_version;
+	$current_user = wp_get_current_user();
+	// send fields for Accessible Video Library.
 	$version = $avl_version;
-	// send fields for all plugins
+	// send fields for all plugins.
 	$wp_version = get_bloginfo('version');
-	$home_url = home_url();
-	$wp_url = site_url();
-	$language = get_bloginfo('language');
-	$charset = get_bloginfo('charset');
-	// server
+	$home_url   = home_url();
+	$wp_url     = site_url();
+	$language   = get_bloginfo('language');
+	$charset    = get_bloginfo('charset');
+	// server.
 	$php_version = phpversion();
 
-	// theme data
-	$theme = wp_get_theme();
-	$theme_name = $theme->get( 'Name' );
-	$theme_uri = $theme->get( 'ThemeURI' );
-	$theme_parent = $theme->get( 'Template' );
+	// theme data.
+	$theme         = wp_get_theme();
+	$theme_name    = $theme->get( 'Name' );
+	$theme_uri     = $theme->get( 'ThemeURI' );
+	$theme_parent  = $theme->get( 'Template' );
 	$theme_version = $theme->get( 'Version' );
 
 	// plugin data
-	$plugins = get_plugins();
+	$plugins        = get_plugins();
 	$plugins_string = '';
-		foreach ( array_keys($plugins) as $key ) {
-			if ( is_plugin_active( $key ) ) {
-				$plugin =& $plugins[$key];
-				$plugin_name = $plugin['Name'];
-				$plugin_uri = $plugin['PluginURI'];
-				$plugin_version = $plugin['Version'];
-				$plugins_string .= "$plugin_name: $plugin_version; $plugin_uri\n";
-			}
+	foreach ( array_keys($plugins) as $key ) {
+		if ( is_plugin_active( $key ) ) {
+			$plugin          =& $plugins[$key];
+			$plugin_name     = $plugin['Name'];
+			$plugin_uri      = $plugin['PluginURI'];
+			$plugin_version  = $plugin['Version'];
+			$plugins_string .= "$plugin_name: $plugin_version; $plugin_uri\n";
 		}
+	}
 	$data = "
 ================ Installation Data ====================
 ==Accessible Video Library:==
