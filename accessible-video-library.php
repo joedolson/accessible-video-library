@@ -224,7 +224,9 @@ function your_function_add_formats( $fields ) {
 <?php
 }
 
-
+/**
+ * Display support request form.
+ */
 function avl_get_support_form() {
 	global $avl_version;
 	$current_user = wp_get_current_user();
@@ -284,79 +286,74 @@ Version: $theme_version
 ==Active Plugins:==
 $plugins_string
 ";
-	if ( isset($_POST['avl_support']) ) {
-		$nonce=$_REQUEST['_wpnonce'];
-		if (! wp_verify_nonce($nonce,'accessible-video-library-nonce') ) die('Security check failed');
-		$request = stripslashes($_POST['support_request']);
-		$has_donated = ( isset( $_POST['has_donated'] ) && $_POST['has_donated'] == 'on')?'Donor':'No donation';
-		$has_read_faq = ( isset( $_POST['has_read_faq'] ) && $_POST['has_read_faq'] == 'on')?'Read FAQ':true; // has no faq, for now.
-		$subject = "Accessible Video Library support request. $has_donated";
-		$message = $request ."\n\n". $data;
-		// Get the site domain and get rid of www. from pluggable.php
+	if ( isset( $_POST['avl_support'] ) ) {
+		$nonce = $_REQUEST['_wpnonce'];
+		if ( ! wp_verify_nonce( $nonce, 'accessible-video-library-nonce' ) ) {
+			die( 'Security check failed' );
+		}
+		$request      = stripslashes( $_POST['support_request'] );
+		$has_donated  = ( isset( $_POST['has_donated'] ) && 'on' == $_POST['has_donated'] ) ? 'Donor' : 'No donation';
+		$subject      = "Accessible Video Library support request. $has_donated";
+		$message      = $request . "\n\n" . $data;
+		// Get the site domain and get rid of www. from pluggable.php.
 		$sitename = strtolower( $_SERVER['SERVER_NAME'] );
-		if ( substr( $sitename, 0, 4 ) == 'www.' ) {
-				$sitename = substr( $sitename, 4 );
+		if ( 'www.' == substr( $sitename, 0, 4 ) ) {
+			$sitename = substr( $sitename, 4 );
 		}
 		$from_email = 'wordpress@' . $sitename;
-		$from = "From: \"$current_user->display_name\" <$from_email>\r\nReply-to: \"$current_user->display_name\" <$current_user->user_email>\r\n";
+		$from       = "From: \"$current_user->display_name\" <$from_email>\r\nReply-to: \"$current_user->display_name\" <$current_user->user_email>\r\n";
 
-		if ( ! $has_read_faq ) {
-			echo "<div class='message error'><p>".__('Please read the FAQ and other Help documents before making a support request.','accessible-video-library').'</p></div>';
+		wp_mail( 'plugins@joedolson.com', $subject, $message, $from );
+
+		if ( 'Donor' == $has_donated ) {
+			echo "<div class='message updated'><p>" . __( 'Thank you for supporting the continuing development of this plug-in! I\'ll get back to you as soon as I can.', 'accessible-video-library' ) . '</p></div>';
 		} else {
-			wp_mail( 'plugins@joedolson.com', $subject, $message, $from );
-
-			if ( $has_donated == 'Donor' ) {
-				echo "<div class='message updated'><p>".__('Thank you for supporting the continuing development of this plug-in! I\'ll get back to you as soon as I can.','accessible-video-library').'</p></div>';
-			} else {
-				echo "<div class='message updated'><p>".__('I\'ll get back to you as soon as I can, after dealing with any support requests from plug-in supporters.','accessible-video-library').'</p></div>';
-			}
+			echo "<div class='message updated'><p>" . __( 'I\'ll get back to you as soon as I can, after dealing with any support requests from plug-in supporters.', 'accessible-video-library' ) . '</p></div>';
 		}
 	} else {
 		$request = '';
 	}
 	echo "
-	<form method='post' action='".admin_url('edit.php?post_type=avl-video&page=avl-help')."'>
-		<div><input type='hidden' name='_wpnonce' value='".wp_create_nonce('accessible-video-library-nonce')."' /></div>
+	<form method='post' action='" . admin_url( 'edit.php?post_type=avl-video&page=avl-help' ) . "'>
+		<div><input type='hidden' name='_wpnonce' value='" . wp_create_nonce( 'accessible-video-library-nonce' ) . "' /></div>
 		<div>
-		<p>".
-		__('Please note: I do keep records of those who have donated, but if your donation came from somebody other than your account at this web site, please note this in your message.','accessible-video-library')
-		."<!--<p>
-		<input type='checkbox' name='has_read_faq' id='has_read_faq' value='on' /> <label for='has_read_faq'>".__('I have read <a href="http://www.joedolson.com/accessible-video-library/">the FAQ for this plug-in</a>.','accessible-video-library')." <span>(required)</span></label>
-		</p>-->
+		<p>" . __( 'Please note: I do keep records of those who have donated, but if your donation came from somebody other than your account at this web site, please note this in your message.', 'accessible-video-library' ) . "
 		<p>
-		<input type='checkbox' name='has_donated' id='has_donated' value='on' /> <label for='has_donated'>".__('I have <a href="http://www.joedolson.com/donate/">made a donation to help support this plug-in</a>.','accessible-video-library')."</label>
+		<input type='checkbox' name='has_donated' id='has_donated' value='on' /> <label for='has_donated'>" . __( 'I have <a href="https://www.joedolson.com/donate/">made a donation to help support this plug-in</a>.','accessible-video-library' ) . "</label>
 		</p>
 		<p>
-		<label for='support_request'>Support Request:</label><br /><textarea name='support_request' required aria-required='true' id='support_request' cols='80' rows='10' class='widefat'>".stripslashes($request)."</textarea>
+		<label for='support_request'>Support Request:</label><br /><textarea name='support_request' required aria-required='true' id='support_request' cols='80' rows='10' class='widefat'>" . stripslashes( $request ) . "</textarea>
 		</p>
 		<p>
-		<input type='submit' value='".__('Send Support Request','accessible-video-library')."' name='avl_support' class='button-primary' />
+		<input type='submit' value='" . __( 'Send Support Request', 'accessible-video-library' ) . "' name='avl_support' class='button-primary' />
 		</p>
-		<p>".
-		__('The following additional information will be sent with your support request:','accessible-video-library')
-		."</p>
+		<p>" . __( 'The following additional information will be sent with your support request:','accessible-video-library' ) . "</p>
 		<div class='avl_support'>
-		".wpautop($data)."
+		" . wpautop( $data ) . "
 		</div>
 		</div>
 	</form>";
 }
 
+/**
+ * Display request to donate & info box.
+ */
 function avl_show_support_box() {
 ?>
 <div class="postbox-container" style="width:20%">
 <div class="metabox-holder">
 	<div class="meta-box-sortables">
 		<div class="postbox">
-		<h3><?php _e('Support this Plug-in','accessible-video-library' ); ?></h3>
+		<h2 class='hndle'><?php _e( 'Support this Plug-in', 'accessible-video-library' ); ?></h2>
 		<div id="support" class="inside resources">
 		<ul>
-			<li><p>
-				<a href="https://twitter.com/intent/tweet?screen_name=joedolson&text=Accessible%20Video%20Library%20Rocks!" class="twitter-mention-button" data-size="large" data-related="joedolson">Tweet to @joedolson</a>
-				<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if (!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-				</p>
+			<li>
+			<p>
+				<a href="https://twitter.com/intent/follow?screen_name=joedolson" class="twitter-follow-button" data-size="small" data-related="joedolson">Follow @joedolson</a>
+				<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if (!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+			</p>
 			</li>
-			<li><p><?php _e('<a href="http://www.joedolson.com/donate.php">Make a donation today!</a> Every donation counts - donate $5, $10, or $100 and help me keep this plug-in running!','accessible-video-library' ); ?></p>
+			<li><p><?php _e( '<a href="https://www.joedolson.com/donate/">Make a donation today!</a> Every donation counts - donate $5, $10, or $100 and help me keep this plug-in running!', 'accessible-video-library' ); ?></p>
 				<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 					<div>
 					<input type="hidden" name="cmd" value="_s-xclick" />
@@ -366,8 +363,8 @@ function avl_show_support_box() {
 					</div>
 				</form>
 			</li>
-			<li><a href="http://profiles.wordpress.org/users/joedolson/"><?php _e('Check out my other plug-ins','accessible-video-library' ); ?></a></li>
-			<li><a href="http://wordpress.org/plugins/accessible-video-library/"><?php _e('Rate this plug-in','accessible-video-library' ); ?></a></li>
+			<li><a href="http://profiles.wordpress.org/users/joedolson/"><?php _e( 'Check out my other plug-ins','accessible-video-library' ); ?></a></li>
+			<li><a href="http://wordpress.org/plugins/accessible-video-library/"><?php _e( 'Rate this plug-in','accessible-video-library' ); ?></a></li>
 		</ul>
 		</div>
 		</div>
@@ -408,44 +405,72 @@ function avl_types() {
 }
 
 add_filter( 'avl_add_custom_fields', 'avl_add_basic_languages' );
+/**
+ * Set up the default language set for AVL
+ *
+ * @param array $fields Array of language fields.
+ *
+ * @return array
+ */
 function avl_add_basic_languages( $fields ) {
-	if ( get_bloginfo('language') != 'en-us' ) {
-		$fields['en-us'] = array( 'label'=>__('US English Subtitles (SRT/DFXP)','accessible-video-library') , 'input'=>'upload', 'format'=>'srt','type'=>'subtitle' );
+	if ( 'en-us' != get_bloginfo( 'language' ) ) {
+		$fields['en-us'] = array( 
+			'label'  => __( 'US English Subtitles (SRT/DFXP)', 'accessible-video-library' ),
+			'input'  => 'upload',
+			'format' => 'srt',
+			'type'   => 'subtitle',
+		);
 	}
-	if ( get_bloginfo( 'language' ) != 'es-ES' ) {
-		$fields['es_ES'] = array( 'label'=>__('Spanish Subtitles (SRT/DFXP)','accessible-video-library') ,'input'=>'upload', 'format'=>'srt','type'=>'subtitle' );
+	if ( 'es-ES' != get_bloginfo( 'language' ) ) {
+		$fields['es_ES'] = array(
+			'label'  => __( 'Spanish Subtitles (SRT/DFXP)', 'accessible-video-library' ),
+			'input'  => 'upload',
+			'format' => 'srt',
+			'type'   => 'subtitle',
+		);
 	}
 
 	return $fields;
 }
 
-// begin add boxes
+/**
+ * Add meta boxes.
+ */
 function avl_add_outer_box() {
-	add_meta_box( 'avl_custom_div',__('Video Data','accessible-video-library'), 'avl_add_inner_box', 'avl-video', 'side','high' );
-}
-function avl_add_inner_box() {
-	$fields = apply_filters( 'avl_add_custom_fields', get_option('avl_fields') );
-	global $post_id;
-	$format = sprintf(
-		'<input type="hidden" name="%1$s" id="%1$s" value="%2$s" />',
-		'mcm_nonce_name', wp_create_nonce( plugin_basename( __FILE__ ) )
-	);
-	foreach ( $fields as $key=>$value ) {
-		$label = $value['label'];
-		$input = $value['input'];
-		$choices = ( isset($value['choices']) )?$value['choices']:false;
-		$format .= avl_create_field( $key, $label, $input, $post_id, $choices );
-	}
-	$shortcode = "<div class='avl-shortcode'><label for='shortcode'>".__('Shortcode','accessible-video-library').":</label> <input type='text' id='shortcode' disabled value='[avl_video id=\"$post_id\"]' /></div>";
-	echo '<div class="avl_post_fields">' . $shortcode.$format.'</div>';
+	add_meta_box( 'avl_custom_div', __( 'Video Data', 'accessible-video-library' ), 'avl_add_inner_box', 'avl-video', 'side', 'high' );
 }
 
+/**
+ * Produce meta box.
+ */
+function avl_add_inner_box() {
+	global $post_id;
+	$fields = apply_filters( 'avl_add_custom_fields', get_option('avl_fields') );
+	$format = sprintf( '<input type="hidden" name="%1$s" id="%1$s" value="%2$s" />', 'mcm_nonce_name', wp_create_nonce( plugin_basename( __FILE__ ) ) );
+	foreach ( $fields as $key => $value ) {
+		$label   = $value['label'];
+		$input   = $value['input'];
+		$choices = ( isset( $value['choices'] ) ) ? $value['choices'] : false;
+		$format .= avl_create_field( $key, $label, $input, $post_id, $choices );
+	}
+	$shortcode = "<div class='avl-shortcode'><label for='shortcode'>" . __( 'Shortcode', 'accessible-video-library' ) . ":</label> <input type='text' id='shortcode' disabled value='[avl_video id=\"$post_id\"]' /></div>";
+	echo '<div class="avl_post_fields">' . $shortcode . $format . '</div>';
+}
+
+/**
+ * Generate options given array of choices.
+ *
+ * @param array $choices Set of items to choose from.
+ * @param string $selected Value currently selected.
+ *
+ * @return string
+ */
 function avl_create_options( $choices, $selected ) {
 	$return = '';
-	if (is_array($choices) ) {
-		foreach ($choices as $value ) {
-			$v = esc_attr( $value);
-			$chosen = ( $v == $selected )?' selected="selected"':'';
+	if ( is_array( $choices ) ) {
+		foreach ( $choices as $value ) {
+			$v       = esc_attr( $value);
+			$chosen  = ( $v == $selected ) ? ' selected="selected"' : '';
 			$return .= "<option value='$value'$chosen>$value</option>";
 		}
 	}
@@ -454,21 +479,31 @@ function avl_create_options( $choices, $selected ) {
 }
 
 add_action( 'wp_enqueue_scripts', 'avl_enqueue_scripts' );
+/**
+ * Enqueue scripting and styles for AVL.
+ */
 function avl_enqueue_scripts() {
 	wp_register_style( 'avl-mediaelement', plugins_url( 'css/avl-mediaelement.css', __FILE__ ) );
 	wp_enqueue_style( 'avl-mediaelement' );
 	wp_deregister_script( 'wp-mediaelement' );
 	wp_register_script( 'wp-mediaelement', plugins_url( 'js/avl-mediaelement.js', __FILE__ ), array( 'jquery', 'mediaelement' ) );
 	$args = apply_filters( 'avl_mediaelement_args', array(
-			'pluginPath' => includes_url( 'js/mediaelement/','relative'),
-			'alwaysShowControls'=>'true',
-		) );
+		'pluginPath'        => includes_url( 'js/mediaelement/', 'relative' ),
+		'alwaysShowControls'=> 'true',
+	) );
 	wp_localize_script( 'wp-mediaelement', '_avlmejsSettings', $args );
 }
 
 add_filter( 'avl_mediaelement_args', 'avl_options' );
+/**
+ * Filter default startlanguage used in MediaElement.
+ *
+ * @param array $args Default arguments.
+ *
+ * @return array
+ */
 function avl_options( $args ) {
-	if ( get_option( 'avl_default_caption' ) != '' ) {
+	if ( '' != get_option( 'avl_default_caption' ) ) {
 		$args['startLanguage'] = strtolower( get_option( 'avl_default_caption' ) );
 	}
 
