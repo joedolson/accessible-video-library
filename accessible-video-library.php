@@ -511,10 +511,13 @@ function avl_options( $args ) {
 }
 
 add_action( 'admin_enqueue_scripts', 'avl_enqueue_admin_scripts' );
+/**
+ * Enqueue scripts required by AVL in the admin.
+ */
 function avl_enqueue_admin_scripts() {
 	$screen = get_current_screen();
-	if ( $screen->base == 'post' ) {
-		if ( function_exists('wp_enqueue_media') && !did_action( 'wp_enqueue_media' ) ) {
+	if ( 'post' == $screen->base ) {
+		if ( function_exists( 'wp_enqueue_media' ) && ! did_action( 'wp_enqueue_media' ) ) {
 			wp_enqueue_media();
 		}
 		wp_enqueue_script( 'avl-admin-script', plugins_url( 'js/uploader.js', __FILE__ ), array( 'jquery' ) );
@@ -522,33 +525,41 @@ function avl_enqueue_admin_scripts() {
 	}
 }
 
-function avl_create_field( $key, $label, $type, $post_id, $choices=false ) {
-	$value = false;
-	$custom = esc_attr( get_post_meta($post_id, "_".$key,true ) );
+/**
+ * Create a custom field used in meta boxes.
+ *
+ * @param string $key Post meta field name.
+ * @param string $label Field label.
+ * @param string $type Type of field.
+ * @param int    $post_id Post ID where displayed.
+ * @param array  $choices Available choices for select or checkbox groups.
+ *
+ * @return string
+ */
+function avl_create_field( $key, $label, $type, $post_id, $choices = false ) {
+	$value  = false;
+	$custom = esc_attr( get_post_meta( $post_id, '_' .  $key, true ) );
 
 	switch ( $type ) {
 		case 'text':
 			$value = '
-		<div>
-			<label for="_' . $key.'">' . $label.'</label><br />'.
-			'<input style="width: 80%;" type="text" name="_' . $key.'" value="' . $custom.'" />
-		</div>';
+			<div>
+				<label for="_' . $key . '">' . $label . '</label><br />' . '<input style="width: 80%;" type="text" name="_' . $key . '" value="' . $custom . '" />
+			</div>';
 		break;
 		case 'upload':
 			$value = '
-		<div class="field-holder"><label for="_' . $key.'">' . $label.'</label><br />'.
-			'<input style="width: 70%;" type="text" class="textfield" name="_' . $key.'" value="' . $custom.'" id="_' . $key.'" /> <a href="#" class="button textfield-field">'.__('Upload','accessible-video-library').'</a>
-			<div class="selected"></div>
-		</div>'."\n";
+			<div class="field-holder"><label for="_' . $key . '">' . $label . '</label><br />' . '<input style="width: 70%;" type="text" class="textfield" name="_' . $key . '" value="' . $custom . '" id="_' . $key . '" /> <a href="#" class="button textfield-field">' . __( 'Upload', 'accessible-video-library' ) . '</a>
+				<div class="selected"></div>
+			</div>' . "\n";
 		break;
 		case 'select':
 			$value = '
-		<div>
-			<label for="_' . $key.'">' . $label.'</label><br />'.
-			'<select name="_' . $key.'">'.
-				avl_create_options( $choices, $custom ).
-			'</select>
-		</div>';
+			<div>
+				<label for="_' . $key . '">' . $label . '</label><br />' . '<select name="_' . $key . '">' . 
+					avl_create_options( $choices, $custom ) . 
+				'</select>
+			</div>';
 		break;
 	}
 
@@ -556,50 +567,67 @@ function avl_create_field( $key, $label, $type, $post_id, $choices=false ) {
 }
 add_action( 'admin_menu','avl_add_outer_box' );
 
+add_action( 'save_post', 'avl_post_meta', 10 );
+/**
+ * Handle saving of post meta data.
+ *
+ * @param int $id Post ID.
+ */
 function avl_post_meta( $id ) {
-	$fields = apply_filters( 'avl_add_custom_fields', get_option('avl_fields') );
-	if ( isset($_POST['_inline_edit']) ) { return; }
-	foreach ( $fields as $key=>$value ) {
-		if ( isset( $_POST["_".$key ] ) ) {
-			$value = $_POST[ "_".$key ];
-			if ( $key == 'external' ) {
+	$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
+	if ( isset( $_POST['_inline_edit'] ) ) { 
+		return; 
+	}
+	foreach ( $fields as $key => $value ) {
+		if ( isset( $_POST[ '_' . $key ] ) ) {
+			$value = $_POST[ '_' . $key ];
+			if ( 'external' == $key ) {
 				avl_register_attachment( $value, $id );
 			}
-			update_post_meta( $id, "_".$key, $value );
+			update_post_meta( $id, '_' . $key, $value );
 		}
 	}
-	// for post screen filters
-	if ( get_post_field( 'post_content', $id, 'raw' ) == '' ) {
+	// for post screen filters.
+	if ( '' == get_post_field( 'post_content', $id, 'raw' ) ) {
 		add_post_meta( $id, '_notranscript', 'true' );
 	} else {
 		delete_post_meta( $id, '_notranscript' );
 	}
 }
 
+/**
+ * Register custom attachment. In order to use YouTube videos in AVL, they need to pretend that they're attachments.
+ *
+ * @param string $url Video URL.
+ * @param int    $id Post ID.
+ */
 function avl_register_attachment( $url, $id ) {
 	if ( $url ) {
 		$title = get_the_title( $id ) . '/YouTube';
-		if ( !avl_is_url( $url ) ) {
+		if ( ! avl_is_url( $url ) ) {
 			$url = "http://youtu.be/$url";
 		}
 		$attachment = array(
-			'post_mime_type'    => "video/youtube",
-			'post_title'        => $title,
-			'post_content'      => '',
-			'post_excerpt'		=> '',
-			'post_status'       => 'inherit',
-			'post_parent'       => $id,
-			'guid' 				=> $url
+			'post_mime_type' => 'video/youtube',
+			'post_title'     => $title,
+			'post_content'   => '',
+			'post_excerpt'   => '',
+			'post_status'    => 'inherit',
+			'post_parent'    => $id,
+			'guid'           => $url,
 		);
-		if ( get_option( $id, '_external_id', true ) == '' ) {
+		if ( '' == get_option( $id, '_external_id', true ) ) {
 			$attach_id = wp_insert_attachment( $attachment, $url );
 			update_post_meta( $attach_id, '_wp_attached_file', $url );
-			update_post_meta( $attach_id, '_wp_attachment_metadata', array( 'mime_type'=>"video/youtube" ) );
+			update_post_meta( $attach_id, '_wp_attachment_metadata', array( 'mime_type' => 'video/youtube' ) );
 			update_post_meta( $id, '_external_id', $attach_id );
 		}
 	}
 }
 
+/**
+ * Register custom post types for AVL.
+ */
 function avl_posttypes() {
 	$types   = avl_types();
 	$enabled = array( 'avl-video' );
@@ -607,42 +635,106 @@ function avl_posttypes() {
 		foreach ( $enabled as $key ) {
 			$value =& $types[$key];
 			$labels = array(
-				'name' => $value[3],
-				'singular_name' => $value[2],
-				'add_new' => __( 'Add New' , 'accessible-video-library' ),
-				'add_new_item' => sprintf( __( 'Create New %s','accessible-video-library' ), $value[2] ),
-				'edit_item' => sprintf( __( 'Modify %s','accessible-video-library' ), $value[2] ),
-				'new_item' => sprintf( __( 'New %s','accessible-video-library' ), $value[2] ),
-				'view_item' => sprintf( __( 'View %s','accessible-video-library' ), $value[2] ),
-				'search_items' => sprintf( __( 'Search %s','accessible-video-library' ), $value[3] ),
-				'not_found' =>  sprintf( __( 'No %s found','accessible-video-library' ), $value[1] ),
-				'not_found_in_trash' => sprintf( __( 'No %s found in Trash','accessible-video-library' ), $value[1] ),
-				'parent_item_colon' => ''
+				'name'               => $value[3],
+				'singular_name'      => $value[2],
+				'add_new'            => __( 'Add New' , 'accessible-video-library' ),
+				'add_new_item'       => __( 'Create New Video','accessible-video-library' ),
+				'edit_item'          => __( 'Modify Video','accessible-video-library' ),
+				'new_item'           => __( 'New Video','accessible-video-library' ),
+				'view_item'          => __( 'View Video','accessible-video-library' ),
+				'search_items'       => __( 'Search Videos','accessible-video-library' ),
+				'not_found'          => __( 'No videos found','accessible-video-library' ),
+				'not_found_in_trash' => __( 'No videos found in Trash','accessible-video-library' ),
+				'parent_item_colon'  => ''
 			);
 			$raw = $value[4];
 			$args = array(
-				'labels' => $labels,
-				'public' => $raw['public'],
-				'publicly_queryable' => $raw['publicly_queryable'],
-				'exclude_from_search'=> $raw['exclude_from_search'],
-				'show_ui' => $raw['show_ui'],
-				'show_in_menu' => $raw['show_in_menu'],
-				'show_ui' => $raw['show_ui'],
-				'menu_icon' => ($raw['menu_icon']==null)?plugins_url('images',__FILE__)."/$key.png":$raw['menu_icon'],
-				'query_var' => true,
-				'rewrite' => array( 'with_front'=>false, 'slug'=>'avl-video' ),
-				'hierarchical' => false,
-				'supports' => $raw['supports']
+				'labels'              => $labels,
+				'public'              => $raw['public'],
+				'publicly_queryable'  => $raw['publicly_queryable'],
+				'exclude_from_search' => $raw['exclude_from_search'],
+				'show_ui'             => $raw['show_ui'],
+				'show_in_menu'        => $raw['show_in_menu'],
+				'show_ui'             => $raw['show_ui'],
+				'menu_icon'           => plugins_url( 'images', __FILE__ ) . '/avl-video.png',
+				'query_var'           => true,
+				'rewrite'             => array( 
+					'with_front' => false,
+					'slug'       => 'avl-video',
+				),
+				'hierarchical'        => false,
+				'supports'            => $raw['supports']
 			);
-			register_post_type($key,$args);
+			register_post_type( $key, $args );
 		}
 	}
 }
 
-// filter to auto replace content with full template
+/**
+ * Field messages for post types.
+ *
+ * @param array $messages Existing array of messages.
+ *
+ * @return array
+ */
+function avl_posttypes_messages( $messages ) {
+	global $post, $post_ID;
+	$types = avl_types();
+	$enabled = array('avl-video');
+	if ( is_array( $enabled ) ) {
+		foreach ( $enabled as $key ) {
+			$value = $types[$key];
+			$messages[$key] = array(
+				0  => '', // Unused. Messages start at index 1.
+				1  => sprintf( __( 'Video updated. <a href="%s">View video</a>' ), esc_url( get_permalink($post_ID) ) ),
+				2  => __( 'Custom field updated.'),
+				3  => __( 'Custom field deleted.' ),
+				4  => __( 'Video updated.' ),
+				/* translators: %s: date and time of the revision */
+				5  => isset( $_GET['revision'] ) ? sprintf( __( 'Video restored to revision from %2$ss' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+				6  => sprintf( __( 'Video published. <a href="%s">View video</a>'), esc_url( get_permalink( $post_ID ) ) ),
+				7  => __( 'Video saved.' ),
+				8  => sprintf( __( 'Video submitted. <a target="_blank" href="%s">Preview video</a>'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
+				9  => sprintf( __( 'Video scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview video</a>'), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post_ID ) ) ),
+				10 => sprintf( __( 'Video draft updated. <a target="_blank" href="%s">Preview video</a>'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
+			);
+		}
+	}
+
+	return $messages;
+}
+
+/**
+ * Define AVL taxonomies.
+ */
+function avl_taxonomies() {
+	register_taxonomy(
+		'avl_category_avl-video',
+		array( 'avl-video' ),
+		array(
+			'hierarchical' => true,
+			'label'        => __( 'Video Categories', 'accessible-video-library' ),
+			'query_var'    => true,
+			'rewrite'      => array( 
+				'slug' => 'avl-video-group' 
+			),
+		)
+	);
+}
+
 add_filter( 'the_content','avl_replace_content', 10, 2 );
-function avl_replace_content( $content, $id=false ) {
-	if ( !is_main_query() && !$id ) { return $content; }
+/**
+ * Automatically replace content with template for videos.
+ *
+ * @param string $content Default post content.
+ * @param int    $id Post ID.
+ *
+ * @return new content.
+ */
+function avl_replace_content( $content, $id = false ) {
+	if ( ! is_main_query() && ! $id ) {
+		return $content;
+	}
 	if ( is_singular( 'avl-video' ) && ! isset( $_GET['transcript'] ) ) {
 		$id = get_the_ID();
 
@@ -653,51 +745,6 @@ function avl_replace_content( $content, $id=false ) {
 	}
 }
 
-function avl_posttypes_messages( $messages ) {
-	global $post, $post_ID;
-	$types = avl_types();
-	$enabled = array('avl-video');
-	if ( is_array( $enabled ) ) {
-		foreach ( $enabled as $key ) {
-			$value = $types[$key];
-			$messages[$key] = array(
-				0 => '', // Unused. Messages start at index 1.
-				1 => sprintf( __( '%1$s updated. <a href="%2$s">View %1$s</a>' ), $value[2], esc_url( get_permalink($post_ID) ) ),
-				2 => __('Custom field updated.'),
-				3 => __('Custom field deleted.'),
-				4 => sprintf( __('%s updated.'), $value[2] ),
-				/* translators: %s: date and time of the revision */
-				5 => isset($_GET['revision']) ? sprintf( __('%1$s restored to revision from %2$ss'), $value[2], wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-				6 => sprintf( __('%1$s published. <a href="%2$s">View %3$s</a>'), $value[2], esc_url( get_permalink($post_ID) ), $value[0] ),
-				7 => sprintf( __( '%s saved.' ), $value[2] ),
-				8 => sprintf( __('%1$s submitted. <a target="_blank" href="%2$s">Preview %3$s</a>'), $value[2], esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ), $value[0] ),
-				9 => sprintf( __('%1$s scheduled for: <strong>%2$s</strong>. <a target="_blank" href="%3$s">Preview %4$s item</a>'),
-				  $value[2], date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post_ID) ), $value[0] ),
-				10 => sprintf( __('%1$s draft updated. <a target="_blank" href="%2$s">Preview %3$s</a>'), $value[2], esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ), $value[0] ),
-			);
-		}
-	}
-
-	return $messages;
-}
-
-function avl_taxonomies() {
-	$types = avl_types();
-	$value = $types['avl-video'];
-	register_taxonomy(
-		'avl_category_avl-video',
-		array( 'avl-video' ),
-		array(
-			'hierarchical' => true,
-			'label'        => __( 'Video Categories', 'accessible-video-library' ),
-			'query_var'    => true,
-			'rewrite'      => array( 
-				'slug' => "avl-video-group" 
-			),
-		)
-	);
-}
-add_action( 'save_post','avl_post_meta', 10 );
 
 /**
  * Get a single custom field from a video object.
