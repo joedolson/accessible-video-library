@@ -2,8 +2,9 @@
 Contributors: joedolson
 Donate link: https://www.joedolson.com/donate/
 Tags: a11y, video, captions, subtitles, transcription, i18n, l10n
-Requires at least: 4.2
+Requires at least: 4.4
 Tested up to: 4.9
+Requires PHP: 5.3
 License: GPLv2 or later
 Text domain: accessible-video-library
 Stable tag: 1.1.4
