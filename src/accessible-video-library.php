@@ -43,18 +43,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $avl_version = '1.1.3';
-// Filters
-add_filter( 'post_updated_messages', 'avl_posttypes_messages');
+// Filters.
+add_filter( 'post_updated_messages', 'avl_posttypes_messages' );
 
-// Enable internationalisation
+// Enable internationalisation.
 add_action( 'plugins_loaded', 'avl_load_textdomain' );
 function avl_load_textdomain() {
 	load_plugin_textdomain( 'accessible-video-library', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 
 }
-// Enable internationalisation
 
-// Actions
+// Actions.
 add_action( 'init', 'avl_taxonomies', 0 );
 add_action( 'init', 'avl_posttypes' );
 add_action( 'admin_menu', 'avl_add_outer_box' );
@@ -71,7 +70,7 @@ function avl_plugin_activated() {
 			'format' => 'srt',
 			'type'   => 'caption',
 		),
-		'mp4'      =>array(
+		'mp4'      => array(
 			'label'  => __( 'Video (mp4)', 'accessible-video-library' ),
 			'input'  => 'upload',
 			'format' => 'mp4',
@@ -84,7 +83,7 @@ function avl_plugin_activated() {
 			'type'   => 'video',
 		),
 		'external' => array(
-			'label'  => __( 'YouTube Video URL','accessible-video-library' ),
+			'label'  => __( 'YouTube Video URL', 'accessible-video-library' ),
 			'input'  => 'text',
 			'format' => 'youtube',
 			'type'   => 'video',
@@ -154,12 +153,12 @@ function avl_support_page() {
 	}
 	?>
 <div class="wrap avl-settings" id="accessible-video-library">
-<h1><?php _e('Accessible Video Library','accessible-video-library' ); ?></h1>
+<h1><?php _e( 'Accessible Video Library', 'accessible-video-library' ); ?></h1>
 	<div id="avl_settings_page" class="postbox-container" style="width: 70%">
 		<div class='metabox-holder'>
 			<div class="settings meta-box-sortables">
 				<div class="postbox" id="settings">
-				<h2 class='hndle'><?php _e('Help','accessible-video-library' ); ?></h2>
+				<h2 class='hndle'><?php _e( 'Help', 'accessible-video-library' ); ?></h2>
 					<div class="inside">
 					<form action='<?php echo admin_url( 'edit.php?post_type=avl-video&page=avl-help' ); ?>' method='post'>
 						<p>
@@ -169,7 +168,7 @@ function avl_support_page() {
 						$output = '';
 						$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
 						foreach ( $fields as $key => $field ) {
-							if ( 'subtitle' == $field['type'] || 'caption' ==  $field['type'] ) {
+							if ( 'subtitle' == $field['type'] || 'caption' == $field['type'] ) {
 								$label    = esc_html( $field['label'] );
 								$value    = esc_attr( $key );
 								$selected = selected( $value, get_option( 'avl_default_caption' ), false );
@@ -191,11 +190,11 @@ function avl_support_page() {
 					</form>
 					<p>
 					<?php
-					_e( 'You can customize some aspects of your videos using filters.','accessible-video-library' );
-					_e( 'The use of videos from your video library is largely through shortcodes, documented below.','accessible-video-library' );
+					_e( 'You can customize some aspects of your videos using filters.', 'accessible-video-library' );
+					_e( 'The use of videos from your video library is largely through shortcodes, documented below.', 'accessible-video-library' );
 					?>
 					</p>
-					<h3><?php _e('Shortcodes','accessible-video-library' ); ?></h3>
+					<h3><?php _e( 'Shortcodes', 'accessible-video-library' ); ?></h3>
 					<p>
 						<input type='text' size="60" disabled value='[avl_video id="$video_id" width="$width" height="$height"]' /></p>
 					<p>
@@ -203,14 +202,19 @@ function avl_support_page() {
 						_e( 'The only required field is the ID of the video you want to display. You can also enter a width and a height, and the video will be displayed with those dimensions.' );
 					?>
 					</p>
-					<h3><?php _e( 'Custom Filters','accessible-video-library' ); ?></h3>
+					<h3><?php _e( 'Custom Filters', 'accessible-video-library' ); ?></h3>
 					<p>
 					<?php
 						_e( 'Out of the box, Accessible Video Library supports captions, ogv and mp4 video formats, the addition of Spanish subtitles, and a YouTube video reference.' );
 						_e( 'Using a custom WordPress filter, you can add support for more formats and languages.' );
 					?>
 					</p>
-					<p><?php printf( __( 'Read more about <a href="%s">WordPress filters</a>', 'accessible-video-player' ), 'http://codex.wordpress.org/Function_Reference/add_filter' ); ?></p>
+					<p>
+					<?php 
+						// Translators: WordPress Codex link.
+						printf( __( 'Read more about <a href="%s">WordPress filters</a>', 'accessible-video-player' ), 'http://codex.wordpress.org/Function_Reference/add_filter' );
+					?>
+					</p>
 					<h3><?php _e( 'Add Video Formats', 'accessible-video-library' ); ?></h3>
 <pre>
 add_filter( 'avl_add_custom_fields', 'your_function_add_formats' );
@@ -238,7 +242,7 @@ function your_function_add_formats( $fields ) {
 			</div>
 			<div class="avl-support meta-box-sortables">
 				<div class="postbox" id="get-support">
-				<h2 class='hndle'><?php _e( 'Get Plug-in Support','accessible-video-library' ); ?></h2>
+				<h2 class='hndle'><?php _e( 'Get Plug-in Support', 'accessible-video-library' ); ?></h2>
 					<div class="inside">
 					<?php avl_get_support_form(); ?>
 					</div>
@@ -260,11 +264,11 @@ function avl_get_support_form() {
 	// send fields for Accessible Video Library.
 	$version = $avl_version;
 	// send fields for all plugins.
-	$wp_version = get_bloginfo('version');
+	$wp_version = get_bloginfo( 'version' );
 	$home_url   = home_url();
 	$wp_url     = site_url();
-	$language   = get_bloginfo('language');
-	$charset    = get_bloginfo('charset');
+	$language   = get_bloginfo( 'language' );
+	$charset    = get_bloginfo( 'charset' );
 	// server.
 	$php_version = phpversion();
 
@@ -275,12 +279,12 @@ function avl_get_support_form() {
 	$theme_parent  = $theme->get( 'Template' );
 	$theme_version = $theme->get( 'Version' );
 
-	// plugin data
+	// plugin data.
 	$plugins        = get_plugins();
 	$plugins_string = '';
-	foreach ( array_keys($plugins) as $key ) {
+	foreach ( array_keys( $plugins ) as $key ) {
 		if ( is_plugin_active( $key ) ) {
-			$plugin          =& $plugins[$key];
+			$plugin          =& $plugins[ $key ];
 			$plugin_name     = $plugin['Name'];
 			$plugin_uri      = $plugin['PluginURI'];
 			$plugin_version  = $plugin['Version'];
@@ -318,10 +322,10 @@ $plugins_string
 		if ( ! wp_verify_nonce( $nonce, 'accessible-video-library-nonce' ) ) {
 			die( 'Security check failed' );
 		}
-		$request      = stripslashes( $_POST['support_request'] );
-		$has_donated  = ( isset( $_POST['has_donated'] ) && 'on' == $_POST['has_donated'] ) ? 'Donor' : 'No donation';
-		$subject      = "Accessible Video Library support request. $has_donated";
-		$message      = $request . "\n\n" . $data;
+		$request     = stripslashes( $_POST['support_request'] );
+		$has_donated = ( isset( $_POST['has_donated'] ) && 'on' == $_POST['has_donated'] ) ? 'Donor' : 'No donation';
+		$subject     = "Accessible Video Library support request. $has_donated";
+		$message     = $request . "\n\n" . $data;
 		// Get the site domain and get rid of www. from pluggable.php.
 		$sitename = strtolower( $_SERVER['SERVER_NAME'] );
 		if ( 'www.' == substr( $sitename, 0, 4 ) ) {
@@ -346,7 +350,7 @@ $plugins_string
 		<div>
 		<p>" . __( 'Please note: I do keep records of those who have donated, but if your donation came from somebody other than your account at this web site, please note this in your message.', 'accessible-video-library' ) . "
 		<p>
-		<input type='checkbox' name='has_donated' id='has_donated' value='on' /> <label for='has_donated'>" . __( 'I have <a href="https://www.joedolson.com/donate/">made a donation to help support this plug-in</a>.','accessible-video-library' ) . "</label>
+		<input type='checkbox' name='has_donated' id='has_donated' value='on' /> <label for='has_donated'>" . __( 'I have <a href="https://www.joedolson.com/donate/">made a donation to help support this plug-in</a>.', 'accessible-video-library' ) . "</label>
 		</p>
 		<p>
 		<label for='support_request'>Support Request:</label><br /><textarea name='support_request' required aria-required='true' id='support_request' cols='80' rows='10' class='widefat'>" . stripslashes( $request ) . "</textarea>
@@ -356,10 +360,10 @@ $plugins_string
 		</p>
 		<p>" . __( 'The following additional information will be sent with your support request:','accessible-video-library' ) . "</p>
 		<div class='avl_support'>
-		" . wpautop( $data ) . "
+		" . wpautop( $data ) . '
 		</div>
 		</div>
-	</form>";
+	</form>';
 }
 
 /**
@@ -390,8 +394,8 @@ function avl_show_support_box() {
 					</div>
 				</form>
 			</li>
-			<li><a href="http://profiles.wordpress.org/users/joedolson/"><?php _e( 'Check out my other plug-ins','accessible-video-library' ); ?></a></li>
-			<li><a href="http://wordpress.org/plugins/accessible-video-library/"><?php _e( 'Rate this plug-in','accessible-video-library' ); ?></a></li>
+			<li><a href="http://profiles.wordpress.org/users/joedolson/"><?php _e( 'Check out my other plug-ins', 'accessible-video-library' ); ?></a></li>
+			<li><a href="http://wordpress.org/plugins/accessible-video-library/"><?php _e( 'Rate this plug-in', 'accessible-video-library' ); ?></a></li>
 		</ul>
 		</div>
 		</div>
@@ -472,7 +476,7 @@ function avl_add_outer_box() {
  */
 function avl_add_inner_box() {
 	global $post_id;
-	$fields = apply_filters( 'avl_add_custom_fields', get_option('avl_fields') );
+	$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
 	$format = sprintf( '<input type="hidden" name="%1$s" id="%1$s" value="%2$s" />', 'mcm_nonce_name', wp_create_nonce( plugin_basename( __FILE__ ) ) );
 	foreach ( $fields as $key => $value ) {
 		$label   = $value['label'];
@@ -487,7 +491,7 @@ function avl_add_inner_box() {
 /**
  * Generate options given array of choices.
  *
- * @param array $choices Set of items to choose from.
+ * @param array  $choices Set of items to choose from.
  * @param string $selected Value currently selected.
  *
  * @return string
@@ -496,7 +500,7 @@ function avl_create_options( $choices, $selected ) {
 	$return = '';
 	if ( is_array( $choices ) ) {
 		foreach ( $choices as $value ) {
-			$v       = esc_attr( $value);
+			$v       = esc_attr( $value );
 			$chosen  = ( $v == $selected ) ? ' selected="selected"' : '';
 			$return .= "<option value='$value'$chosen>$value</option>";
 		}
@@ -515,8 +519,8 @@ function avl_enqueue_scripts() {
 	wp_deregister_script( 'wp-mediaelement' );
 	wp_register_script( 'wp-mediaelement', plugins_url( 'js/avl-mediaelement.js', __FILE__ ), array( 'jquery', 'mediaelement' ) );
 	$args = apply_filters( 'avl_mediaelement_args', array(
-		'pluginPath'        => includes_url( 'js/mediaelement/', 'relative' ),
-		'alwaysShowControls'=> 'true',
+		'pluginPath'         => includes_url( 'js/mediaelement/', 'relative' ),
+		'alwaysShowControls' => 'true',
 	) );
 	wp_localize_script( 'wp-mediaelement', '_avlmejsSettings', $args );
 }
@@ -565,7 +569,7 @@ function avl_enqueue_admin_scripts() {
  */
 function avl_create_field( $key, $label, $type, $post_id, $choices = false ) {
 	$value  = false;
-	$custom = esc_attr( get_post_meta( $post_id, '_' .  $key, true ) );
+	$custom = esc_attr( get_post_meta( $post_id, '_' . $key, true ) );
 
 	switch ( $type ) {
 		case 'text':
@@ -573,13 +577,13 @@ function avl_create_field( $key, $label, $type, $post_id, $choices = false ) {
 			<div>
 				<label for="_' . $key . '">' . $label . '</label><br />' . '<input style="width: 80%;" type="text" name="_' . $key . '" value="' . $custom . '" />
 			</div>';
-		break;
+			break;
 		case 'upload':
 			$value = '
 			<div class="field-holder"><label for="_' . $key . '">' . $label . '</label><br />' . '<input style="width: 70%;" type="text" class="textfield" name="_' . $key . '" value="' . $custom . '" id="_' . $key . '" /> <a href="#" class="button textfield-field">' . __( 'Upload', 'accessible-video-library' ) . '</a>
 				<div class="selected"></div>
 			</div>' . "\n";
-		break;
+			break;
 		case 'select':
 			$value = '
 			<div>
@@ -587,12 +591,12 @@ function avl_create_field( $key, $label, $type, $post_id, $choices = false ) {
 					avl_create_options( $choices, $custom ) .
 				'</select>
 			</div>';
-		break;
+			break;
 	}
 
 	return $value;
 }
-add_action( 'admin_menu','avl_add_outer_box' );
+add_action( 'admin_menu', 'avl_add_outer_box' );
 
 add_action( 'save_post', 'avl_post_meta', 10 );
 /**
@@ -660,7 +664,7 @@ function avl_posttypes() {
 	$enabled = array( 'avl-video' );
 	if ( is_array( $enabled ) ) {
 		foreach ( $enabled as $key ) {
-			$value =& $types[$key];
+			$value  =& $types[ $key ];
 			$labels = array(
 				'name'               => $value[3],
 				'singular_name'      => $value[2],
@@ -672,10 +676,10 @@ function avl_posttypes() {
 				'search_items'       => __( 'Search Videos','accessible-video-library' ),
 				'not_found'          => __( 'No videos found','accessible-video-library' ),
 				'not_found_in_trash' => __( 'No videos found in Trash','accessible-video-library' ),
-				'parent_item_colon'  => ''
+				'parent_item_colon'  => '',
 			);
-			$raw = $value[4];
-			$args = array(
+			$raw    = $value[4];
+			$args   = array(
 				'labels'              => $labels,
 				'public'              => $raw['public'],
 				'publicly_queryable'  => $raw['publicly_queryable'],
@@ -690,7 +694,7 @@ function avl_posttypes() {
 					'slug'       => 'avl-video',
 				),
 				'hierarchical'        => false,
-				'supports'            => $raw['supports']
+				'supports'            => $raw['supports'],
 			);
 			register_post_type( $key, $args );
 		}
@@ -706,24 +710,29 @@ function avl_posttypes() {
  */
 function avl_posttypes_messages( $messages ) {
 	global $post, $post_ID;
-	$types = avl_types();
-	$enabled = array('avl-video');
+	$types   = avl_types();
+	$enabled = array( 'avl-video' );
 	if ( is_array( $enabled ) ) {
 		foreach ( $enabled as $key ) {
-			$value = $types[$key];
-			$messages[$key] = array(
+			$value            = $types[ $key ];
+			$messages[ $key ] = array(
 				0  => '', // Unused. Messages start at index 1.
+				// Translators: Video URL.
 				1  => sprintf( __( 'Video updated. <a href="%s">View video</a>' ), esc_url( get_permalink($post_ID) ) ),
 				2  => __( 'Custom field updated.'),
 				3  => __( 'Custom field deleted.' ),
 				4  => __( 'Video updated.' ),
-				/* translators: %s: date and time of the revision */
-				5  => isset( $_GET['revision'] ) ? sprintf( __( 'Video restored to revision from %2$ss' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-				6  => sprintf( __( 'Video published. <a href="%s">View video</a>'), esc_url( get_permalink( $post_ID ) ) ),
+				// translators: %s: date and time of the revision.
+				5  => isset( $_GET['revision'] ) ? sprintf( __( 'Video restored to revision from %2$s' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+				// Translators: Video URL.
+				6  => sprintf( __( 'Video published. <a href="%s">View video</a>' ), esc_url( get_permalink( $post_ID ) ) ),
 				7  => __( 'Video saved.' ),
+				// Translators: Preview URL.
 				8  => sprintf( __( 'Video submitted. <a target="_blank" href="%s">Preview video</a>'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
+				// Translators: Date, preview URL.
 				9  => sprintf( __( 'Video scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview video</a>'), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post_ID ) ) ),
-				10 => sprintf( __( 'Video draft updated. <a target="_blank" href="%s">Preview video</a>'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
+				// Translators: Preview URL.
+				10 => sprintf( __( 'Video draft updated. <a target="_blank" href="%s">Preview video</a>' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
 			);
 		}
 	}
@@ -743,13 +752,13 @@ function avl_taxonomies() {
 			'label'        => __( 'Video Categories', 'accessible-video-library' ),
 			'query_var'    => true,
 			'rewrite'      => array(
-				'slug' => 'avl-video-group'
+				'slug' => 'avl-video-group',
 			),
 		)
 	);
 }
 
-add_filter( 'the_content','avl_replace_content', 10, 2 );
+add_filter( 'the_content', 'avl_replace_content', 10, 2 );
 /**
  * Automatically replace content with template for videos.
  *
@@ -776,7 +785,7 @@ function avl_replace_content( $content, $id = false ) {
 /**
  * Get a single custom field from a video object.
  *
- * @param string $field Field name.
+ * @param string  $field Field name.
  * @param integer $id Post ID.
  *
  * @return mixed value
@@ -809,7 +818,7 @@ function get_avl_video( $atts ) {
 /**
  * Shortcode handler for avl media list.
  *
- * @param array $atts Shortcode attributes.
+ * @param array  $atts Shortcode attributes.
  * @param string $content Contained content.
  *
  * @return string
@@ -856,7 +865,7 @@ function avl_media( $category, $header = 'h4', $orderby = 'menu_order', $order =
 				'taxonomy' => 'avl_category_avl-video',
 				'field'    => 'slug',
 				'terms'    => $category,
-			)
+			),
 		);
 	}
 	$posts = get_posts( $args );
@@ -866,11 +875,10 @@ function avl_media( $category, $header = 'h4', $orderby = 'menu_order', $order =
 		<div class='avl-video avl-video-$p->ID'>
 			<$header><a href='$permalink'>$p->post_title</a></$header>
 			<div class='avl-video-description'>
-				<div class='avl-video-thumbnail'>" . avl_video( $p->ID, 135, 240 ) . "</div>
-				" . wpautop( $p->post_excerpt ) . "
+				<div class='avl-video-thumbnail'>" . avl_video( $p->ID, 135, 240 ) . '</div>
+				' . wpautop( $p->post_excerpt ) . '
 			</div>
-			\n
-		</div>\n";
+		</div>';
 	}
 
 	return $media;
@@ -898,7 +906,7 @@ function avl_is_url( $url ) {
  */
 function avl_video( $id, $height = false, $width = false ) {
 	global $content_width;
-	$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
+	$fields    = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
 	$yt_url    = false;
 	$image     = false;
 	$has_video = false;
@@ -910,7 +918,7 @@ function avl_video( $id, $height = false, $width = false ) {
 
 	if ( $youtube && avl_is_url( $youtube ) ) {
 		$yt_url = $youtube;
-	} elseif ( $youtube && !avl_is_url( $youtube ) ) {
+	} elseif ( $youtube && ! avl_is_url( $youtube ) ) {
 		$yt_url = "http://youtu.be/$youtube";
 	}
 	$params = '';
@@ -928,11 +936,11 @@ function avl_video( $id, $height = false, $width = false ) {
 	}
 	if ( has_post_thumbnail( $id ) ) {
 		$thumb = wp_get_attachment_image_src( get_post_thumbnail_id( $id ), 'thumbnail_name' );
-		$image = $thumb[0]; // thumbnail url
+		$image = $thumb[0]; // thumbnail url.
 	}
 	if ( ! $image && $youtube ) {
-		$replace = array( 'http://youtu.be/', 'http://www.youtube.com/watch?v=', 'https://youtu.be/',  'https://www.youtube.com/watch?v=' );
-		$youtube = str_replace( $replace,'',$youtube );
+		$replace = array( 'http://youtu.be/', 'http://www.youtube.com/watch?v=', 'https://youtu.be/', 'https://www.youtube.com/watch?v=' );
+		$youtube = str_replace( $replace, '', $youtube );
 		$image   = "http://img.youtube.com/vi/$youtube/0.jpg";
 	}
 	// $audio_desc = avl_get_custom_field( '_audio_desc', $id ); MediaElements.js does not support audio description.
@@ -940,7 +948,8 @@ function avl_video( $id, $height = false, $width = false ) {
 	$content  = get_post_field( 'post_content', $id );
 
 	if ( $content ) {
-		$transcript = "<a href='" . add_query_arg( 'transcript', 'true', get_permalink( $id ) ) . "' class='video-transcript-link'>" . sprintf( __( 'Transcript<span class="screen-reader-text"> to %s</span>', 'accessible-video-library'), get_post_field( 'post_title', $id ) ) . '</a>';
+		// Translators: Post title.
+		$transcript = "<a href='" . add_query_arg( 'transcript', 'true', get_permalink( $id ) ) . "' class='video-transcript-link'>" . sprintf( __( 'Transcript<span class="screen-reader-text"> to %s</span>', 'accessible-video-library' ), get_post_field( 'post_title', $id ) ) . '</a>';
 	} else {
 		$transcript = '';
 	}
@@ -968,7 +977,7 @@ function avl_video( $id, $height = false, $width = false ) {
 		if ( 'mediaelement' === $library && did_action( 'init' ) ) {
 			if ( 'true' != get_option( 'avl_responsive' ) ) {
 				$content_width    = ( ! $content_width ) ? apply_filters( 'avl_default_width', 640 ) : $content_width;
-				$width            = ( $width ) ? $width : $content_width ;
+				$width            = ( $width ) ? $width : $content_width;
 				$height           = ( $height ) ? $height : round( $content_width / apply_filters( 'avl_default_aspect', 1.6 ) );
 				$width            = $width . 'px';
 				$height           = $height . 'px';
@@ -976,7 +985,7 @@ function avl_video( $id, $height = false, $width = false ) {
 			}
 			wp_enqueue_style( 'wp-mediaelement' );
 			wp_enqueue_script( 'wp-mediaelement' );
-			$html = '<div class="avl_media_container" style="width: ' . $width . '; height: ' . $container_height . '; max-width: 100%;">';
+			$html  = '<div class="avl_media_container" style="width: ' . $width . '; height: ' . $container_height . '; max-width: 100%;">';
 			$html .= "<!--[if lt IE 9]><script>document.createElement('video');</script><![endif]-->";
 			$html .= '<video class="wp-video-shortcode" id="video-' . $id . '-1" width="' . $width . '" height="' . $height . '" poster="http://img.youtube.com/vi/' . $youtube . '/0.jpg" preload="metadata" controls="controls">
 						<a href="http://youtu.be/' . $youtube . '">http://youtu.be/' . $youtube . '</a>
@@ -1003,9 +1012,9 @@ add_filter( 'avl_implementation', 'avl_add_a11y', 10, 4 );
  * @return string
  */
 function avl_add_a11y( $html, $id = false, $captions = '', $youtube = '' ) {
-	$fields = apply_filters( 'avl_add_custom_fields', get_option('avl_fields') );
+	$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
 	if ( $captions ) {
-		$html = str_replace( '</video>','<track kind="subtitles" src="' . $captions . '" label="' . __( 'Captions','accessible-video-library' ) . '" srclang="' . get_bloginfo('language') . '" /></video>', $html );
+		$html = str_replace( '</video>', '<track kind="subtitles" src="' . $captions . '" label="' . __( 'Captions','accessible-video-library' ) . '" srclang="' . get_bloginfo( 'language' ) . '" /></video>', $html );
 	}
 
 	foreach ( $fields as $key => $field ) {
@@ -1013,16 +1022,16 @@ function avl_add_a11y( $html, $id = false, $captions = '', $youtube = '' ) {
 			$label = esc_attr( $field['label'] );
 			$value = get_post_meta( $id, '_' . $key, true );
 			if ( $value ) {
-				$html = str_replace( '</video>','<track kind="subtitles" src="' . $value . '" label="' . $label . '" srclang="' . $key . '" /></video>', $html );
+				$html = str_replace( '</video>', '<track kind="subtitles" src="' . $value . '" label="' . $label . '" srclang="' . $key . '" /></video>', $html );
 			}
 		}
 	}
 
 	if ( $youtube ) { // this is kludgy, but it's what I've got for now.
-		$att_source = content_url() . '/uploads/'. $youtube;
+		$att_source = content_url() . '/uploads/' . $youtube;
 		$html       = str_replace( $att_source, $youtube, $html );
 		$html       = str_replace( '<source type="" src="' . $youtube . '" />', '', $html );
-		$html       = str_replace( '</video>','<source type="video/youtube" src="' . $youtube . '" /></video>', $html );
+		$html       = str_replace( '</video>', '<source type="video/youtube" src="' . $youtube . '" /></video>', $html );
 	}
 
 	return $html;
@@ -1042,7 +1051,7 @@ function avl_custom( $args ) {
 	return $args;
 }
 
-add_filter('upload_mimes','avl_custom_mimes');
+add_filter( 'upload_mimes', 'avl_custom_mimes' );
 /**
  * Add custom mime types to allow srt and dfxp caption files.
  *
@@ -1077,8 +1086,6 @@ function avl_column( $cols ) {
  *
  * @param string  $column_name Column name.
  * @param integer $id Post ID.
- *
- * @return value.
  */
 function avl_custom_column( $column_name, $id ) {
 	$no  = __( 'No', 'accessible-video-library' );
@@ -1087,7 +1094,7 @@ function avl_custom_column( $column_name, $id ) {
 		case 'avl_captions':
 			$srt   = get_post_meta( $id, '_captions', true );
 			$notes = "<span class='avl no-captions'>$no</span>";
-			if ( $srt ) { 
+			if ( $srt ) {
 				$notes = "<span class='avl has-captions'>$yes</span>";
 			}
 			echo $notes;
@@ -1095,7 +1102,7 @@ function avl_custom_column( $column_name, $id ) {
 		case 'avl_transcript':
 			$transcript = get_post_field( 'post_content', $id );
 			$notes      = "<span class='avl no-transcript'>$no</span>";
-			if ( $transcript ) { 
+			if ( $transcript ) {
 				$notes = "<span class='avl has-transcript'>$yes</span>";
 			}
 			echo $notes;
@@ -1142,7 +1149,7 @@ function avl_css() {
 <?php
 }
 
-add_action('admin_init', 'avl_add');
+add_action( 'admin_init', 'avl_add' );
 /**
  * Add custom columns to video posts list.
  */
@@ -1162,7 +1169,7 @@ add_filter( 'pre_get_posts', 'filter_avl_videos' );
  */
 function filter_avl_videos( $query ) {
 	global $pagenow;
-	if ( !is_admin() ) {
+	if ( ! is_admin() ) {
 		return;
 	}
 
