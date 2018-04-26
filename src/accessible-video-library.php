@@ -77,13 +77,13 @@ function avl_plugin_activated() {
 			'format' => 'mp4',
 			'type'   => 'video',
 		),
-		'ogv'      => array( 
+		'ogv'      => array(
 			'label'  => __( 'Video (ogv)', 'accessible-video-library' ),
 			'input'  => 'upload',
 			'format' => 'ogv',
 			'type'   => 'video',
 		),
-		'external' => array( 
+		'external' => array(
 			'label'  => __( 'YouTube Video URL','accessible-video-library' ),
 			'input'  => 'text',
 			'format' => 'youtube',
@@ -142,14 +142,14 @@ add_action( 'admin_menu', 'avl_add_support_page' );
 /**
  * Build support & settings page.
  */
-function avl_support_page() { 
+function avl_support_page() {
 	if ( isset( $_POST['avl_settings'] ) ) {
 		$responsive = ( isset( $_POST['avl_responsive'] ) ) ? 'true' : 'false';
 		update_option( 'avl_responsive', $responsive );
-		
+
 		$avl_default_caption = ( isset( $_POST['avl_default_caption'] ) ) ? $_POST['avl_default_caption'] : '';
 		update_option( 'avl_default_caption', $avl_default_caption );
-		
+
 		echo "<div class='notice updated'><p>" . __( 'Accessible Video Library Settings Updated', 'accessible-video-library' ) . '</p></div>';
 	}
 	?>
@@ -206,8 +206,8 @@ function avl_support_page() {
 					<h3><?php _e( 'Custom Filters','accessible-video-library' ); ?></h3>
 					<p>
 					<?php
-						_e( 'Out of the box, Accessible Video Library supports captions, ogv and mp4 video formats, the addition of Spanish subtitles, and a YouTube video reference.' ); 
-						_e( 'Using a custom WordPress filter, you can add support for more formats and languages.' ); 
+						_e( 'Out of the box, Accessible Video Library supports captions, ogv and mp4 video formats, the addition of Spanish subtitles, and a YouTube video reference.' );
+						_e( 'Using a custom WordPress filter, you can add support for more formats and languages.' );
 					?>
 					</p>
 					<p><?php printf( __( 'Read more about <a href="%s">WordPress filters</a>', 'accessible-video-player' ), 'http://codex.wordpress.org/Function_Reference/add_filter' ); ?></p>
@@ -441,7 +441,7 @@ add_filter( 'avl_add_custom_fields', 'avl_add_basic_languages' );
  */
 function avl_add_basic_languages( $fields ) {
 	if ( 'en-us' != get_bloginfo( 'language' ) ) {
-		$fields['en-us'] = array( 
+		$fields['en-us'] = array(
 			'label'  => __( 'US English Subtitles (SRT/DFXP)', 'accessible-video-library' ),
 			'input'  => 'upload',
 			'format' => 'srt',
@@ -583,8 +583,8 @@ function avl_create_field( $key, $label, $type, $post_id, $choices = false ) {
 		case 'select':
 			$value = '
 			<div>
-				<label for="_' . $key . '">' . $label . '</label><br />' . '<select name="_' . $key . '">' . 
-					avl_create_options( $choices, $custom ) . 
+				<label for="_' . $key . '">' . $label . '</label><br />' . '<select name="_' . $key . '">' .
+					avl_create_options( $choices, $custom ) .
 				'</select>
 			</div>';
 		break;
@@ -602,8 +602,8 @@ add_action( 'save_post', 'avl_post_meta', 10 );
  */
 function avl_post_meta( $id ) {
 	$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
-	if ( isset( $_POST['_inline_edit'] ) ) { 
-		return; 
+	if ( isset( $_POST['_inline_edit'] ) ) {
+		return;
 	}
 	foreach ( $fields as $key => $value ) {
 		if ( isset( $_POST[ '_' . $key ] ) ) {
@@ -685,7 +685,7 @@ function avl_posttypes() {
 				'show_ui'             => $raw['show_ui'],
 				'menu_icon'           => plugins_url( 'images', __FILE__ ) . '/avl-video.png',
 				'query_var'           => true,
-				'rewrite'             => array( 
+				'rewrite'             => array(
 					'with_front' => false,
 					'slug'       => 'avl-video',
 				),
@@ -742,8 +742,8 @@ function avl_taxonomies() {
 			'hierarchical' => true,
 			'label'        => __( 'Video Categories', 'accessible-video-library' ),
 			'query_var'    => true,
-			'rewrite'      => array( 
-				'slug' => 'avl-video-group' 
+			'rewrite'      => array(
+				'slug' => 'avl-video-group'
 			),
 		)
 	);
@@ -1028,65 +1028,104 @@ function avl_add_a11y( $html, $id = false, $captions = '', $youtube = '' ) {
 	return $html;
 }
 
-function avl_admin_styles() {
-	//wp_enqueue_style('thickbox');
-}
-
-add_action('admin_print_styles', 'avl_admin_styles');
-
 add_filter( 'get_media_item_args', 'avl_custom' );
+/**
+ * Add custom media item argument.
+ *
+ * @param array $args Existing arguments.
+ *
+ * @return array
+ */
 function avl_custom( $args ) {
 	$args['send'] = true;
+
 	return $args;
 }
 
 add_filter('upload_mimes','avl_custom_mimes');
-function avl_custom_mimes( $mimes=array() ) {
-	$mimes['srt'] = 'text/plain';
+/**
+ * Add custom mime types to allow srt and dfxp caption files.
+ *
+ * @param array $mimes Allowed mime types.
+ *
+ * @return array
+ */
+function avl_custom_mimes( $mimes = array() ) {
+	$mimes['srt']  = 'text/plain';
 	$mimes['dfxp'] = 'application/ttaf+xml';
-	//$mimes['sub'] = 'text/plain';
+
 	return $mimes;
 }
 
+/**
+ * Add custom columns.
+ *
+ * @param array $cols All columns.
+ *
+ * @return array
+ */
+function avl_column( $cols ) {
+	$cols['avl_captions']   = __( 'Captions', 'accessible-video-library' );
+	$cols['avl_transcript'] = __( 'Transcript', 'accessible-video-library' );
+	$cols['avl_id']         = __( 'ID', 'accessible-video-library' );
 
-function avl_column($cols) {
-	$cols['avl_captions'] = __('Captions','accessible-video-library');
-	$cols['avl_transcript'] = __('Transcript','accessible-video-library');
-	$cols['avl_id'] = __('ID','accessible-video-library');
 	return $cols;
 }
 
-// Echo the ID for the new column
+/**
+ * Display custom column information.
+ *
+ * @param string  $column_name Column name.
+ * @param integer $id Post ID.
+ *
+ * @return value.
+ */
 function avl_custom_column( $column_name, $id ) {
-	$no = __( 'No','accessible-video-library' );
-	$yes = __( 'Yes','accessible-video-library' );
+	$no  = __( 'No', 'accessible-video-library' );
+	$yes = __( 'Yes', 'accessible-video-library' );
 	switch ( $column_name ) {
-		case 'avl_captions' :
-			$srt = get_post_meta( $id, '_captions',true );
+		case 'avl_captions':
+			$srt   = get_post_meta( $id, '_captions', true );
 			$notes = "<span class='avl no-captions'>$no</span>";
-			if ( $srt ) { $notes = "<span class='avl has-captions'>$yes</span>"; }
+			if ( $srt ) { 
+				$notes = "<span class='avl has-captions'>$yes</span>";
+			}
 			echo $notes;
-		break;
-		case 'avl_transcript' :
+			break;
+		case 'avl_transcript':
 			$transcript = get_post_field( 'post_content', $id );
-			$notes = "<span class='avl no-transcript'>$no</span>";
-			if ( $transcript ) { $notes = "<span class='avl has-transcript'>$yes</span>"; }
+			$notes      = "<span class='avl no-transcript'>$no</span>";
+			if ( $transcript ) { 
+				$notes = "<span class='avl has-transcript'>$yes</span>";
+			}
 			echo $notes;
-		break;
-		case 'avl_id' :
+			break;
+		case 'avl_id':
 			echo $id;
-		break;
+			break;
 	}
 }
 
-function avl_return_value($value, $column_name, $id) {
-	if ( $column_name == 'avl_captions' || $column_name == 'avl_transcript' || $column_name == 'avl_id' ) {
+/**
+ * Display value in custom video columns.
+ *
+ * @param string  $value Value to show.
+ * @param string  $column_name Column name.
+ * @param integer $id Post ID.
+ *
+ * @return value.
+ */
+function avl_return_value( $value, $column_name, $id ) {
+	if ( 'avl_captions' == $column_name || 'avl_transcript' == $column_name || 'avl_id' == $column_name ) {
 		$value = $id;
 	}
+
 	return $value;
 }
 
-// Output CSS for width of new column
+/**
+ * Output CSS for width of new column
+ */
 function avl_css() {
 ?>
 <style type="text/css">
@@ -1103,76 +1142,71 @@ function avl_css() {
 <?php
 }
 
-// Actions/Filters for various tables and the css output
 add_action('admin_init', 'avl_add');
+/**
+ * Add custom columns to video posts list.
+ */
 function avl_add() {
 	add_action( 'admin_head', 'avl_css' );
-	add_filter( "manage_avl-video_posts_columns", 'avl_column' );
-	add_action( "manage_avl-video_posts_custom_column", 'avl_custom_column', 10, 2 );
+	add_filter( 'manage_avl-video_posts_columns', 'avl_column' );
+	add_action( 'manage_avl-video_posts_custom_column', 'avl_custom_column', 10, 2 );
 }
 
-/* Column sorting/filtering
-add_filter( "pre_get_posts", 'orderby_featured_image_title' );
-function orderby_featured_image_title( $query ) {
+add_filter( 'pre_get_posts', 'filter_avl_videos' );
+/**
+ * Filter video listing by transcript & captions.
+ *
+ * @param object $query WP Query.
+ *
+ * @return object
+ */
+function filter_avl_videos( $query ) {
+	global $pagenow;
 	if ( !is_admin() ) {
 		return;
 	}
 
-	$order_by = $query->get( 'orderby' );
+	$qv = &$query->query_vars;
 
-	if ( $order_by === $this->column_slug ) {
-		$query->set( 'meta_key', '_thumbnail_id' );
-		$query->set( 'orderby', 'meta_value_num' );
-	}
-}
-*/
+	if ( 'edit.php' == $pagenow && ! empty( $qv['post_type'] ) && 'avl-video' == $qv['post_type'] ) {
+		if ( empty( $_GET['avl_filter'] ) ) {
+			return;
+		}
 
-add_filter( "pre_get_posts", 'filter_avl_videos' );
-function filter_avl_videos( $query ) {
-	global $pagenow;
-	if ( !is_admin() ) { return; }
-
-	$qv = & $query->query_vars;
-
-	if ( $pagenow == 'edit.php' && ! empty( $qv['post_type'] ) && $qv['post_type'] == 'avl-video' ) {
-		if ( empty( $_GET['avl_filter'] ) ) { return; }
-
-		if ( $_GET['avl_filter'] == 'transcripts' ) {
-			$query->set(
-				  'meta_query',
-				  array(
-					   array(
-						   'key'     => '_notranscript',
-						   'value'   => 'true',
-						   'compare' => '='
-					   )
-				  )
-			);
-		} elseif ( $_GET['avl_filter'] == 'captions' ) {
-			$query->set(
-				  'meta_query',
-				  array(
-					   array(
-						   'key'     => '_captions',
-						   'value'   => '',
-						   'compare' => '='
-					   )
-				  )
-			);
+		if ( 'transcripts' == $_GET['avl_filter'] ) {
+			$query->set( 'meta_query', array(
+				array(
+					'key'     => '_notranscript',
+					'value'   => 'true',
+					'compare' => '=',
+				),
+			) );
+		} elseif ( 'captions' == $_GET['avl_filter'] ) {
+			$query->set( 'meta_query', array(
+				array(
+					'key'     => '_captions',
+					'value'   => '',
+					'compare' => '=',
+				),
+			) );
 		}
 	}
 }
 
-add_action( "restrict_manage_posts", 'filter_avl_dropdown' );
+add_action( 'restrict_manage_posts', 'filter_avl_dropdown' );
+/**
+ * Add a filter to posts screen to identify files with captions or transcripts.
+ */
 function filter_avl_dropdown() {
 	global $wp_query, $typenow;
-	if ( $typenow == 'avl-video' ) {
+	if ( 'avl-video' == $typenow ) {
 		$post_type = get_post_type_object( $typenow );
 		if ( isset( $_GET['avl_filter'] ) ) {
-			$captions = ( $_GET['avl_filter'] == 'captions' ) ? ' selected="selected"' : '';
-			$transcripts = ( $_GET['avl_filter'] == 'transcripts' ) ? ' selected="selected"' : '';
+			$captions    = ( 'captions' == $_GET['avl_filter'] ) ? ' selected="selected"' : '';
+			$transcripts = ( 'transcripts' == $_GET['avl_filter'] ) ? ' selected="selected"' : '';
 		} else {
-			$captions = $transcripts = '';
+			$captions    = '';
+			$transcripts = '';
 		}
 		?>
 		<select class="postform" id="avl_filter" name="avl_filter">
