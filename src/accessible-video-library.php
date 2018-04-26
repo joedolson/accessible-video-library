@@ -46,8 +46,10 @@ $avl_version = '1.1.3';
 // Filters.
 add_filter( 'post_updated_messages', 'avl_posttypes_messages' );
 
-// Enable internationalisation.
 add_action( 'plugins_loaded', 'avl_load_textdomain' );
+/**
+ * Set up internationalisation.
+ */
 function avl_load_textdomain() {
 	load_plugin_textdomain( 'accessible-video-library', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 
@@ -210,7 +212,7 @@ function avl_support_page() {
 					?>
 					</p>
 					<p>
-					<?php 
+					<?php
 						// Translators: WordPress Codex link.
 						printf( __( 'Read more about <a href="%s">WordPress filters</a>', 'accessible-video-player' ), 'http://codex.wordpress.org/Function_Reference/add_filter' );
 					?>
@@ -358,7 +360,7 @@ $plugins_string
 		<p>
 		<input type='submit' value='" . __( 'Send Support Request', 'accessible-video-library' ) . "' name='avl_support' class='button-primary' />
 		</p>
-		<p>" . __( 'The following additional information will be sent with your support request:','accessible-video-library' ) . "</p>
+		<p>" . __( 'The following additional information will be sent with your support request:', 'accessible-video-library' ) . "</p>
 		<div class='avl_support'>
 		" . wpautop( $data ) . '
 		</div>
@@ -668,14 +670,14 @@ function avl_posttypes() {
 			$labels = array(
 				'name'               => $value[3],
 				'singular_name'      => $value[2],
-				'add_new'            => __( 'Add New' , 'accessible-video-library' ),
-				'add_new_item'       => __( 'Create New Video','accessible-video-library' ),
-				'edit_item'          => __( 'Modify Video','accessible-video-library' ),
-				'new_item'           => __( 'New Video','accessible-video-library' ),
-				'view_item'          => __( 'View Video','accessible-video-library' ),
-				'search_items'       => __( 'Search Videos','accessible-video-library' ),
-				'not_found'          => __( 'No videos found','accessible-video-library' ),
-				'not_found_in_trash' => __( 'No videos found in Trash','accessible-video-library' ),
+				'add_new'            => __( 'Add New', 'accessible-video-library' ),
+				'add_new_item'       => __( 'Create New Video', 'accessible-video-library' ),
+				'edit_item'          => __( 'Modify Video', 'accessible-video-library' ),
+				'new_item'           => __( 'New Video', 'accessible-video-library' ),
+				'view_item'          => __( 'View Video', 'accessible-video-library' ),
+				'search_items'       => __( 'Search Videos', 'accessible-video-library' ),
+				'not_found'          => __( 'No videos found', 'accessible-video-library' ),
+				'not_found_in_trash' => __( 'No videos found in Trash', 'accessible-video-library' ),
 				'parent_item_colon'  => '',
 			);
 			$raw    = $value[4];
@@ -718,8 +720,8 @@ function avl_posttypes_messages( $messages ) {
 			$messages[ $key ] = array(
 				0  => '', // Unused. Messages start at index 1.
 				// Translators: Video URL.
-				1  => sprintf( __( 'Video updated. <a href="%s">View video</a>' ), esc_url( get_permalink($post_ID) ) ),
-				2  => __( 'Custom field updated.'),
+				1  => sprintf( __( 'Video updated. <a href="%s">View video</a>' ), esc_url( get_permalink( $post_ID ) ) ),
+				2  => __( 'Custom field updated.' ),
 				3  => __( 'Custom field deleted.' ),
 				4  => __( 'Video updated.' ),
 				// translators: %s: date and time of the revision.
@@ -728,9 +730,9 @@ function avl_posttypes_messages( $messages ) {
 				6  => sprintf( __( 'Video published. <a href="%s">View video</a>' ), esc_url( get_permalink( $post_ID ) ) ),
 				7  => __( 'Video saved.' ),
 				// Translators: Preview URL.
-				8  => sprintf( __( 'Video submitted. <a target="_blank" href="%s">Preview video</a>'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
+				8  => sprintf( __( 'Video submitted. <a target="_blank" href="%s">Preview video</a>' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
 				// Translators: Date, preview URL.
-				9  => sprintf( __( 'Video scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview video</a>'), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post_ID ) ) ),
+				9  => sprintf( __( 'Video scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview video</a>' ), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post_ID ) ) ),
 				// Translators: Preview URL.
 				10 => sprintf( __( 'Video draft updated. <a target="_blank" href="%s">Preview video</a>' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
 			);
@@ -923,7 +925,7 @@ function avl_video( $id, $height = false, $width = false ) {
 	}
 	$params = '';
 	$first  = true;
-	foreach ( $fields as $k => $field ) { // need to id videos
+	foreach ( $fields as $k => $field ) { // need to id videos.
 		if ( 'video' == $field['type'] && 'external' != $k ) {
 			$format             = ( $first ) ? 'src' : $field['format'];
 			${$field['format']} = avl_get_custom_field( '_' . $field['format'], $id );
@@ -1014,7 +1016,7 @@ add_filter( 'avl_implementation', 'avl_add_a11y', 10, 4 );
 function avl_add_a11y( $html, $id = false, $captions = '', $youtube = '' ) {
 	$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
 	if ( $captions ) {
-		$html = str_replace( '</video>', '<track kind="subtitles" src="' . $captions . '" label="' . __( 'Captions','accessible-video-library' ) . '" srclang="' . get_bloginfo( 'language' ) . '" /></video>', $html );
+		$html = str_replace( '</video>', '<track kind="subtitles" src="' . $captions . '" label="' . __( 'Captions', 'accessible-video-library' ) . '" srclang="' . get_bloginfo( 'language' ) . '" /></video>', $html );
 	}
 
 	foreach ( $fields as $key => $field ) {
