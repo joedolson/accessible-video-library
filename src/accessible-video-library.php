@@ -807,7 +807,7 @@ function avl_get_custom_field( $field, $id = '' ) {
  *
  * @return string
  */
-function get_avl_video( $atts ) {
+function avl_get_video( $atts ) {
 	$args = shortcode_atts( array(
 		'id'     => '',
 		'height' => false,
@@ -825,7 +825,7 @@ function get_avl_video( $atts ) {
  *
  * @return string
  */
-function get_avl_media( $atts, $content = null ) {
+function avl_get_media( $atts, $content = null ) {
 	$args = shortcode_atts( array(
 		'category' => '',
 		'header'   => 'h4',
@@ -839,8 +839,8 @@ function get_avl_media( $atts, $content = null ) {
 }
 
 // add shortcode interpreter.
-add_shortcode( 'avl_video', 'get_avl_video' );
-add_shortcode( 'avl_media', 'get_avl_media' );
+add_shortcode( 'avl_video', 'avl_get_video' );
+add_shortcode( 'avl_media', 'avl_get_media' );
 /**
  * Execute avl media list shortcode.
  *
@@ -1161,7 +1161,7 @@ function avl_add() {
 	add_action( 'manage_avl-video_posts_custom_column', 'avl_custom_column', 10, 2 );
 }
 
-add_filter( 'pre_get_posts', 'filter_avl_videos' );
+add_filter( 'pre_get_posts', 'avl_filter_videos' );
 /**
  * Filter video listing by transcript & captions.
  *
@@ -1169,7 +1169,7 @@ add_filter( 'pre_get_posts', 'filter_avl_videos' );
  *
  * @return object
  */
-function filter_avl_videos( $query ) {
+function avl_filter_videos( $query ) {
 	global $pagenow;
 	if ( ! is_admin() ) {
 		return;
@@ -1202,11 +1202,11 @@ function filter_avl_videos( $query ) {
 	}
 }
 
-add_action( 'restrict_manage_posts', 'filter_avl_dropdown' );
+add_action( 'restrict_manage_posts', 'avl_filter_dropdown' );
 /**
  * Add a filter to posts screen to identify files with captions or transcripts.
  */
-function filter_avl_dropdown() {
+function avl_filter_dropdown() {
 	global $wp_query, $typenow;
 	if ( 'avl-video' == $typenow ) {
 		$post_type = get_post_type_object( $typenow );
