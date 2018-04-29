@@ -483,6 +483,19 @@ function avl_add_basic_languages( $fields ) {
  */
 function avl_add_outer_box() {
 	add_meta_box( 'avl_custom_div', __( 'Video Data', 'accessible-video-library' ), 'avl_add_inner_box', 'avl-video', 'side', 'high' );
+	add_meta_box( 'avl_video', __( 'Video', 'accessible-video-library' ), 'avl_show_video', 'avl-video', 'normal', 'high' );
+}
+
+/**
+ * Show video in editor.
+ */
+function avl_show_video() {
+	global $post_id;
+	if ( $post_id ) {
+		echo avl_video( $post_id, 450, 640 );
+	}
+
+	return;
 }
 
 /**
@@ -970,7 +983,7 @@ function avl_video( $id, $height = false, $width = false ) {
 	$transcript = apply_filters( 'avl_transcript_link', $transcript, $id, get_post_field( 'post_title', $id ) );
 	// player selector in settings.
 	// to test YouTube, need to not have any video attached (WP auto uses first attached vid].
-	if ( 'true' == get_option( 'avl_responsive' ) ) {
+	if ( 'true' == get_option( 'avl_responsive' ) && ! is_admin() ) {
 		$height = '100%';
 		$width  = '100%';
 	}
@@ -979,34 +992,14 @@ function avl_video( $id, $height = false, $width = false ) {
 	} else {
 		$params .= " height='360' width='640'";
 	}
-	if ( 'true' == get_option( 'avl_responsive' ) ) {
+	if ( $youtube ) {
+		$params .= " src='$yt_url'";
+	}
+	if ( 'true' == get_option( 'avl_responsive' ) && ! is_admin() ) {
 		$vid  = do_shortcode( "[video $params poster='$image']" );
 		$html = str_replace( array( 'px;', 'width="100"', 'height="100"' ), array( '%;', 'width="100%"', 'height="100%"' ), $vid );
 	} else {
 		$html = do_shortcode( "[video $params poster='$image']" );
-	}
-	if ( ! $html && $youtube ) {
-		// won't return results when only YouTube and not on the AVL media page, so generate them.
-		$library = apply_filters( 'wp_video_shortcode_library', 'mediaelement' );
-		if ( 'mediaelement' === $library && did_action( 'init' ) ) {
-			if ( 'true' != get_option( 'avl_responsive' ) ) {
-				$content_width    = ( ! $content_width ) ? apply_filters( 'avl_default_width', 640 ) : $content_width;
-				$width            = ( $width ) ? $width : $content_width;
-				$height           = ( $height ) ? $height : round( $content_width / apply_filters( 'avl_default_aspect', 1.6 ) );
-				$container_height = ( $height + 50 ) . 'px';
-				$width            = $width . 'px';
-				$height           = $height . 'px';
-			}
-			wp_enqueue_style( 'wp-mediaelement' );
-			wp_enqueue_script( 'wp-mediaelement' );
-			$html  = '<div class="avl_media_container" style="width: ' . $width . '; height: ' . $container_height . '; max-width: 100%;">';
-			$html .= "<!--[if lt IE 9]><script>document.createElement('video');</script><![endif]-->";
-			$html .= '<video class="wp-video-shortcode" id="video-' . $id . '-1" width="' . $width . '" height="' . $height . '" poster="http://img.youtube.com/vi/' . $youtube . '/0.jpg" preload="metadata" controls="controls">
-						<a href="http://youtu.be/' . $youtube . '">http://youtu.be/' . $youtube . '</a>
-						<source type="video/youtube" src="http://youtu.be/' . $youtube . '" />
-					</video>
-					</div>';
-		}
 	}
 
 	$html = apply_filters( 'avl_implementation', $html, $id, $captions, $yt_url ) . $transcript;
