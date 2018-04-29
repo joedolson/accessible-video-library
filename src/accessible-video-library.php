@@ -65,33 +65,36 @@ register_activation_hook( __FILE__, 'avl_plugin_activated' );
  * Define fields on activation.
  */
 function avl_plugin_activated() {
-	$avl_fields = array(
-		'captions' => array(
-			'label'  => __( 'Captions (SRT/DFXP)', 'accessible-video-library' ),
-			'input'  => 'upload',
-			'format' => 'srt',
-			'type'   => 'caption',
-		),
-		'mp4'      => array(
-			'label'  => __( 'Video (mp4)', 'accessible-video-library' ),
-			'input'  => 'upload',
-			'format' => 'mp4',
-			'type'   => 'video',
-		),
-		'ogv'      => array(
-			'label'  => __( 'Video (ogv)', 'accessible-video-library' ),
-			'input'  => 'upload',
-			'format' => 'ogv',
-			'type'   => 'video',
-		),
-		'external' => array(
-			'label'  => __( 'YouTube Video URL', 'accessible-video-library' ),
-			'input'  => 'text',
-			'format' => 'youtube',
-			'type'   => 'video',
-		),
-	);
-	add_option( 'avl_fields', $avl_fields );
+	$avl_fields = get_option( 'avl_fields' );
+	if ( ! is_array( $avl_fields ) ) {
+		$avl_fields = array(
+			'captions' => array(
+				'label'  => __( 'Captions (SRT/DFXP)', 'accessible-video-library' ),
+				'input'  => 'upload',
+				'format' => 'srt',
+				'type'   => 'caption',
+			),
+			'mp4'      => array(
+				'label'  => __( 'Video (mp4)', 'accessible-video-library' ),
+				'input'  => 'upload',
+				'format' => 'mp4',
+				'type'   => 'video',
+			),
+			'ogv'      => array(
+				'label'  => __( 'Video (ogv)', 'accessible-video-library' ),
+				'input'  => 'upload',
+				'format' => 'ogv',
+				'type'   => 'video',
+			),
+			'external' => array(
+				'label'  => __( 'YouTube Video URL', 'accessible-video-library' ),
+				'input'  => 'text',
+				'format' => 'youtube',
+				'type'   => 'video',
+			),
+		);
+		add_option( 'avl_fields', $avl_fields );
+	}
 	flush_rewrite_rules();
 }
 
