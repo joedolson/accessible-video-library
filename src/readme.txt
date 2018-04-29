@@ -2,7 +2,7 @@
 Contributors: joedolson
 Donate link: https://www.joedolson.com/donate/
 Tags: a11y, video, captions, subtitles, transcription, i18n, l10n
-Requires at least: 4.4
+Requires at least: 4.9
 Tested up to: 4.9
 Requires PHP: 5.3
 License: GPLv2 or later
@@ -42,11 +42,15 @@ Translating my plug-ins is always appreciated. Visit <a href="http://translate.j
 
 == Changelog ==
 
-= 1.1.4 =
+= 1.2.0 =
 
 * Updated tested to 4.9
 * Bug fix: exclude audio CSS
-* 
+* Support YouTube videos using native MediaElement implementation.
+* Support Vimeo videos
+* Update code style.
+* Misc. visual changes.
+* Show video in video admin.
 
 = 1.1.3 =
 

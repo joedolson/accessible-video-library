@@ -17,7 +17,7 @@
  * License URI: http://www.gnu.org/license/gpl-2.0.txt
  * Text Domain: accessible-video-library
  * Domain Path: /lang
- * Version: 1.1.4
+ * Version: 1.2.0
  */
 
 /*
@@ -42,7 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$avl_version = '1.1.3';
+$avl_version = '1.2.0';
 // Filters.
 add_filter( 'post_updated_messages', 'avl_posttypes_messages' );
 
