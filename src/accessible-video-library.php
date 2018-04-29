@@ -161,7 +161,7 @@ function avl_support_page() {
 		<div class='metabox-holder'>
 			<div class="settings meta-box-sortables">
 				<div class="postbox" id="settings">
-				<h2 class='hndle'><?php _e( 'Help', 'accessible-video-library' ); ?></h2>
+				<h2 class='hndle'><?php _e( 'Settings', 'accessible-video-library' ); ?></h2>
 					<div class="inside">
 					<form action='<?php echo admin_url( 'edit.php?post_type=avl-video&page=avl-help' ); ?>' method='post'>
 						<p>
@@ -188,9 +188,16 @@ function avl_support_page() {
 							<input type='checkbox' name='avl_responsive' id='avl_responsive' value='true'<?php checked( get_option( 'avl_responsive' ), 'true' ); ?> /> <label for='avl_responsive'><?php _e( 'Responsive Videos', 'accessible-video-library' ); ?></label>
 						</p>
 						<p>
-							<input type='submit' name='avl_settings' value='<?php _e( 'Update Settings', 'accessible-video-library' ); ?>' />
+							<input class='button-primary' type='submit' name='avl_settings' value='<?php _e( 'Update Settings', 'accessible-video-library' ); ?>' />
 						</p>
 					</form>
+				</div>
+			</div>
+		</div>
+		<div class="settings meta-box-sortables">
+			<div class="postbox" id="settings">
+				<h2 class='hndle'><?php _e( 'Help', 'accessible-video-library' ); ?></h2>
+				<div class="inside">
 					<p>
 					<?php
 					_e( 'You can customize some aspects of your videos using filters.', 'accessible-video-library' );
@@ -199,7 +206,7 @@ function avl_support_page() {
 					</p>
 					<h3><?php _e( 'Shortcodes', 'accessible-video-library' ); ?></h3>
 					<p>
-						<input type='text' size="60" disabled value='[avl_video id="$video_id" width="$width" height="$height"]' /></p>
+						<textarea class='large-text readonly' type='text' size="60" readonly>[avl_video id="$video_id" width="$width" height="$height"]</textarea></p>
 					<p>
 					<?php
 						_e( 'The only required field is the ID of the video you want to display. You can also enter a width and a height, and the video will be displayed with those dimensions.' );
@@ -209,6 +216,7 @@ function avl_support_page() {
 					<p>
 					<?php
 						_e( 'Out of the box, Accessible Video Library supports captions, ogv and mp4 video formats, the addition of Spanish subtitles, and a YouTube video reference.' );
+						echo ' ';
 						_e( 'Using a custom WordPress filter, you can add support for more formats and languages.' );
 					?>
 					</p>
