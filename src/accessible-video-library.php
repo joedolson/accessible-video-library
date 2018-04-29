@@ -1029,6 +1029,12 @@ add_filter( 'avl_implementation', 'avl_add_a11y', 10, 4 );
 function avl_add_a11y( $html, $id = false, $captions = '', $youtube = '' ) {
 	$fields = avl_fields();
 	if ( $captions ) {
+		if ( is_ssl() ) {
+			$captions = str_replace( 'http:', 'https:', $captions );
+		}
+		if ( ! is_ssl() ) {
+			$captions = str_replace( 'https:', 'http:', $captions );
+		}
 		$html = str_replace( '</video>', '<track kind="subtitles" src="' . $captions . '" label="' . __( 'Captions', 'accessible-video-library' ) . '" srclang="' . get_bloginfo( 'language' ) . '" /></video>', $html );
 	}
 
@@ -1036,17 +1042,16 @@ function avl_add_a11y( $html, $id = false, $captions = '', $youtube = '' ) {
 		if ( 'subtitle' == $field['type'] ) {
 			$label = esc_attr( $field['label'] );
 			$value = get_post_meta( $id, '_' . $key, true );
+			if ( is_ssl() ) {
+				$value = str_replace( 'http:', 'https:', $value );
+			}
+			if ( ! is_ssl() ) {
+				$value = str_replace( 'https:', 'http:', $value );
+			}
 			if ( $value ) {
 				$html = str_replace( '</video>', '<track kind="subtitles" src="' . $value . '" label="' . $label . '" srclang="' . $key . '" /></video>', $html );
 			}
 		}
-	}
-
-	if ( $youtube ) { // this is kludgy, but it's what I've got for now.
-		$att_source = content_url() . '/uploads/' . $youtube;
-		$html       = str_replace( $att_source, $youtube, $html );
-		$html       = str_replace( '<source type="" src="' . $youtube . '" />', '', $html );
-		$html       = str_replace( '</video>', '<source type="video/youtube" src="' . $youtube . '" /></video>', $html );
 	}
 
 	return $html;
