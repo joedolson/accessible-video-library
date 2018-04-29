@@ -99,7 +99,7 @@ function avl_fields() {
 			'format' => 'youtube',
 			'type'   => 'video',
 		),
-		'vimeo' => array(
+		'vimeo'    => array(
 			'label'  => __( 'Vimeo Video URL', 'accessible-video-library' ),
 			'input'  => 'text',
 			'format' => 'vimeo',
@@ -928,8 +928,8 @@ function avl_video( $id, $height = false, $width = false ) {
 	} elseif ( $youtube && ! avl_is_url( $youtube ) ) {
 		$yt_url = "http://youtu.be/$youtube";
 	}
-	
-	if  ( $vimeo && avl_is_url( $vimeo ) ) {
+
+	if ( $vimeo && avl_is_url( $vimeo ) ) {
 		$vm_url = $vimeo;
 	} elseif ( $vimeo && ! avl_is_url( $vimeo ) ) {
 		$vm_url = 'http://vimeo.com/' . $vimeo;
@@ -957,7 +957,7 @@ function avl_video( $id, $height = false, $width = false ) {
 		$youtube = str_replace( $replace, '', $youtube );
 		$image   = "//img.youtube.com/vi/$youtube/0.jpg";
 	}
-	
+
 	if ( ! $image && $vimeo ) {
 		if ( get_post_meta( $id, '_vimeo_poster', true ) ) {
 			$image = get_post_meta( $id, '_vimeo_poster', true );
