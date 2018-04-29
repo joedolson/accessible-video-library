@@ -134,8 +134,9 @@ function avl_add_support_page() {
  * Add plugin styles to admin.
  */
 function avl_styles() {
-	if ( 'avl-help' == $_GET['page'] ) {
-		echo '<link type="text/css" rel="stylesheet" href="' . plugins_url( 'avl-styles.css', __FILE__ ) . '" />';
+	$screen = get_current_screen();
+	if ( 'avl-video_page_avl-help' == $screen->id ) {
+		wp_enqueue_style( 'avl.styles', plugins_url( 'css/avl-styles.css', __FILE__ ) );
 	}
 }
 
@@ -156,7 +157,7 @@ function avl_support_page() {
 	?>
 <div class="wrap avl-settings" id="accessible-video-library">
 <h1><?php _e( 'Accessible Video Library', 'accessible-video-library' ); ?></h1>
-	<div id="avl_settings_page" class="postbox-container" style="width: 70%">
+	<div id="avl_settings_page" class="postbox-container avl-wide">
 		<div class='metabox-holder'>
 			<div class="settings meta-box-sortables">
 				<div class="postbox" id="settings">
@@ -373,7 +374,7 @@ $plugins_string
  */
 function avl_show_support_box() {
 ?>
-<div class="postbox-container" style="width:20%">
+<div class="postbox-container avl-narrow">
 <div class="metabox-holder">
 	<div class="meta-box-sortables">
 		<div class="postbox">
