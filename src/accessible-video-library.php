@@ -430,7 +430,7 @@ function avl_types() {
 		'show_in_menu'        => true,
 		'show_ui'             => true,
 		'menu_icon'           => null,
-		'supports'            => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'custom-fields' ),
+		'supports'            => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt' ),
 	);
 
 	$avl_types = array(
@@ -495,7 +495,7 @@ function avl_add_inner_box() {
 		$choices = ( isset( $value['choices'] ) ) ? $value['choices'] : false;
 		$format .= avl_create_field( $key, $label, $input, $post_id, $choices );
 	}
-	$shortcode = "<div class='avl-shortcode'><label for='shortcode'>" . __( 'Shortcode', 'accessible-video-library' ) . ":</label> <input type='text' id='shortcode' disabled value='[avl_video id=\"$post_id\"]' /></div>";
+	$shortcode = "<div class='avl-shortcode'><label for='shortcode'>" . __( 'Shortcode', 'accessible-video-library' ) . ":</label> <input type='text' id='shortcode' readonly value='[avl_video id=\"$post_id\"]' /></div>";
 	echo '<div class="avl_post_fields">' . $shortcode . $format . '</div>';
 }
 
