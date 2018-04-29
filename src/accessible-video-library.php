@@ -651,9 +651,6 @@ function avl_post_meta( $id ) {
 	foreach ( $fields as $key => $value ) {
 		if ( isset( $_POST[ '_' . $key ] ) ) {
 			$value = $_POST[ '_' . $key ];
-			if ( 'external' == $key ) {
-				avl_register_attachment( $value, $id );
-			}
 			update_post_meta( $id, '_' . $key, $value );
 		}
 	}
@@ -662,36 +659,6 @@ function avl_post_meta( $id ) {
 		add_post_meta( $id, '_notranscript', 'true' );
 	} else {
 		delete_post_meta( $id, '_notranscript' );
-	}
-}
-
-/**
- * Register custom attachment. In order to use YouTube videos in AVL, they need to pretend that they're attachments.
- *
- * @param string $url Video URL.
- * @param int    $id Post ID.
- */
-function avl_register_attachment( $url, $id ) {
-	if ( $url ) {
-		$title = get_the_title( $id ) . '/YouTube';
-		if ( ! avl_is_url( $url ) ) {
-			$url = "http://youtu.be/$url";
-		}
-		$attachment = array(
-			'post_mime_type' => 'video/youtube',
-			'post_title'     => $title,
-			'post_content'   => '',
-			'post_excerpt'   => '',
-			'post_status'    => 'inherit',
-			'post_parent'    => $id,
-			'guid'           => $url,
-		);
-		if ( '' == get_option( $id, '_external_id', true ) ) {
-			$attach_id = wp_insert_attachment( $attachment, $url );
-			update_post_meta( $attach_id, '_wp_attached_file', $url );
-			update_post_meta( $attach_id, '_wp_attachment_metadata', array( 'mime_type' => 'video/youtube' ) );
-			update_post_meta( $id, '_external_id', $attach_id );
-		}
 	}
 }
 
@@ -954,12 +921,20 @@ function avl_video( $id, $height = false, $width = false ) {
 		$id    = $video->ID;
 	}
 	$youtube = avl_get_custom_field( '_external', $id );
+	$vimeo   = avl_get_custom_field( '_vimeo', $id );
 
 	if ( $youtube && avl_is_url( $youtube ) ) {
 		$yt_url = $youtube;
 	} elseif ( $youtube && ! avl_is_url( $youtube ) ) {
 		$yt_url = "http://youtu.be/$youtube";
 	}
+	
+	if  ( $vimeo && avl_is_url( $vimeo ) ) {
+		$vm_url = $vimeo;
+	} elseif ( $vimeo && ! avl_is_url( $vimeo ) ) {
+		$vm_url = 'http://vimeo.com/' . $vimeo;
+	}
+
 	$params = '';
 	$first  = true;
 	foreach ( $fields as $k => $field ) { // need to id videos.
@@ -980,7 +955,20 @@ function avl_video( $id, $height = false, $width = false ) {
 	if ( ! $image && $youtube ) {
 		$replace = array( 'http://youtu.be/', 'http://www.youtube.com/watch?v=', 'https://youtu.be/', 'https://www.youtube.com/watch?v=' );
 		$youtube = str_replace( $replace, '', $youtube );
-		$image   = "http://img.youtube.com/vi/$youtube/0.jpg";
+		$image   = "//img.youtube.com/vi/$youtube/0.jpg";
+	}
+	
+	if ( ! $image && $vimeo ) {
+		if ( get_post_meta( $id, '_vimeo_poster', true ) ) {
+			$image = get_post_meta( $id, '_vimeo_poster', true );
+		} else {
+			$replace = array( 'http://vimeo.com/', 'https://vimeo.com/' );
+			$vimeo   = str_replace( $replace, '', $vimeo );
+			$data    = wp_remote_get( 'http://vimeo.com/api/v2/video/' . $vimeo . '.json' );
+			$data    = json_decode( $data['body'] );
+			$image   = str_replace( 'http://', '//', $data[0]->thumbnail_large );
+			add_post_meta( $id, '_vimeo_poster', $image );
+		}
 	}
 	// $audio_desc = avl_get_custom_field( '_audio_desc', $id ); MediaElements.js does not support audio description.
 	$captions = avl_get_custom_field( '_captions', $id );
@@ -1009,6 +997,10 @@ function avl_video( $id, $height = false, $width = false ) {
 
 	if ( $youtube ) {
 		$params .= " src='$yt_url'";
+	}
+
+	if ( $vimeo ) {
+		$params .= " src='$vm_url'";
 	}
 
 	if ( 'true' == get_option( 'avl_responsive' ) && ! is_admin() ) {
