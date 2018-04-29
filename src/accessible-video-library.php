@@ -65,37 +65,49 @@ register_activation_hook( __FILE__, 'avl_plugin_activated' );
  * Define fields on activation.
  */
 function avl_plugin_activated() {
-	$avl_fields = get_option( 'avl_fields' );
-	if ( ! is_array( $avl_fields ) ) {
-		$avl_fields = array(
-			'captions' => array(
-				'label'  => __( 'Captions (SRT/DFXP)', 'accessible-video-library' ),
-				'input'  => 'upload',
-				'format' => 'srt',
-				'type'   => 'caption',
-			),
-			'mp4'      => array(
-				'label'  => __( 'Video (mp4)', 'accessible-video-library' ),
-				'input'  => 'upload',
-				'format' => 'mp4',
-				'type'   => 'video',
-			),
-			'ogv'      => array(
-				'label'  => __( 'Video (ogv)', 'accessible-video-library' ),
-				'input'  => 'upload',
-				'format' => 'ogv',
-				'type'   => 'video',
-			),
-			'external' => array(
-				'label'  => __( 'YouTube Video URL', 'accessible-video-library' ),
-				'input'  => 'text',
-				'format' => 'youtube',
-				'type'   => 'video',
-			),
-		);
-		add_option( 'avl_fields', $avl_fields );
-	}
 	flush_rewrite_rules();
+}
+
+/**
+ * Default fields for AVL videos.
+ *
+ * @return array
+ */
+function avl_fields() {
+	$avl_fields = array(
+		'captions' => array(
+			'label'  => __( 'Captions (SRT/DFXP)', 'accessible-video-library' ),
+			'input'  => 'upload',
+			'format' => 'srt',
+			'type'   => 'caption',
+		),
+		'mp4'      => array(
+			'label'  => __( 'Video (mp4)', 'accessible-video-library' ),
+			'input'  => 'upload',
+			'format' => 'mp4',
+			'type'   => 'video',
+		),
+		'ogv'      => array(
+			'label'  => __( 'Video (ogv)', 'accessible-video-library' ),
+			'input'  => 'upload',
+			'format' => 'ogv',
+			'type'   => 'video',
+		),
+		'external' => array(
+			'label'  => __( 'YouTube Video URL', 'accessible-video-library' ),
+			'input'  => 'text',
+			'format' => 'youtube',
+			'type'   => 'video',
+		),
+		'vimeo' => array(
+			'label'  => __( 'Vimeo Video URL', 'accessible-video-library' ),
+			'input'  => 'text',
+			'format' => 'vimeo',
+			'type'   => 'video',
+		),
+	);
+
+	return apply_filters( 'avl_add_custom_fields', $avl_fields );
 }
 
 register_deactivation_hook( __FILE__, 'avl_plugin_activated' );
@@ -172,7 +184,7 @@ function avl_support_page() {
 						<select id="avl_default_caption" name="avl_default_caption">
 						<?php
 						$output = '';
-						$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
+						$fields = avl_fields();
 						foreach ( $fields as $key => $field ) {
 							if ( 'subtitle' == $field['type'] || 'caption' == $field['type'] ) {
 								$label    = esc_html( $field['label'] );
@@ -503,7 +515,7 @@ function avl_show_video() {
  */
 function avl_add_inner_box() {
 	global $post_id;
-	$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
+	$fields = avl_fields();
 	$format = sprintf( '<input type="hidden" name="%1$s" id="%1$s" value="%2$s" />', 'mcm_nonce_name', wp_create_nonce( plugin_basename( __FILE__ ) ) );
 	foreach ( $fields as $key => $value ) {
 		$label   = $value['label'];
@@ -632,7 +644,7 @@ add_action( 'save_post', 'avl_post_meta', 10 );
  * @param int $id Post ID.
  */
 function avl_post_meta( $id ) {
-	$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
+	$fields = avl_fields();
 	if ( isset( $_POST['_inline_edit'] ) ) {
 		return;
 	}
@@ -933,7 +945,7 @@ function avl_is_url( $url ) {
  */
 function avl_video( $id, $height = false, $width = false ) {
 	global $content_width;
-	$fields    = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
+	$fields    = avl_fields();
 	$yt_url    = false;
 	$image     = false;
 	$has_video = false;
@@ -980,6 +992,7 @@ function avl_video( $id, $height = false, $width = false ) {
 	} else {
 		$transcript = '';
 	}
+
 	$transcript = apply_filters( 'avl_transcript_link', $transcript, $id, get_post_field( 'post_title', $id ) );
 	// player selector in settings.
 	// to test YouTube, need to not have any video attached (WP auto uses first attached vid].
@@ -987,14 +1000,17 @@ function avl_video( $id, $height = false, $width = false ) {
 		$height = '100%';
 		$width  = '100%';
 	}
+
 	if ( $height && $width ) {
 		$params .= " height='$height' width='$width'";
 	} else {
 		$params .= " height='360' width='640'";
 	}
+
 	if ( $youtube ) {
 		$params .= " src='$yt_url'";
 	}
+
 	if ( 'true' == get_option( 'avl_responsive' ) && ! is_admin() ) {
 		$vid  = do_shortcode( "[video $params poster='$image']" );
 		$html = str_replace( array( 'px;', 'width="100"', 'height="100"' ), array( '%;', 'width="100%"', 'height="100%"' ), $vid );
@@ -1019,7 +1035,7 @@ add_filter( 'avl_implementation', 'avl_add_a11y', 10, 4 );
  * @return string
  */
 function avl_add_a11y( $html, $id = false, $captions = '', $youtube = '' ) {
-	$fields = apply_filters( 'avl_add_custom_fields', get_option( 'avl_fields' ) );
+	$fields = avl_fields();
 	if ( $captions ) {
 		$html = str_replace( '</video>', '<track kind="subtitles" src="' . $captions . '" label="' . __( 'Captions', 'accessible-video-library' ) . '" srclang="' . get_bloginfo( 'language' ) . '" /></video>', $html );
 	}
