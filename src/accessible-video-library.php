@@ -993,9 +993,9 @@ function avl_video( $id, $height = false, $width = false ) {
 				$content_width    = ( ! $content_width ) ? apply_filters( 'avl_default_width', 640 ) : $content_width;
 				$width            = ( $width ) ? $width : $content_width;
 				$height           = ( $height ) ? $height : round( $content_width / apply_filters( 'avl_default_aspect', 1.6 ) );
+				$container_height = ( $height + 50 ) . 'px';
 				$width            = $width . 'px';
 				$height           = $height . 'px';
-				$container_height = ( $height + 50 ) . 'px';
 			}
 			wp_enqueue_style( 'wp-mediaelement' );
 			wp_enqueue_script( 'wp-mediaelement' );
