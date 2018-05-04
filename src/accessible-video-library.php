@@ -816,7 +816,7 @@ function avl_get_video( $atts ) {
 		'id'     => '',
 		'height' => false,
 		'width'  => false,
-	), $atts );
+	), $atts, 'avl_video' );
 
 	return avl_video( $args['id'], $args['height'], $args['width'] );
 }
@@ -837,7 +837,7 @@ function avl_get_media( $atts, $content = null ) {
 		'order'    => 'asc',
 		'height'   => false,
 		'width'    => false,
-	), $atts );
+	), $atts, 'avl_media' );
 
 	return avl_media( $args['category'], $args['header'], $args['orderby'], $args['order'], $args['height'], $args['width'] );
 }
