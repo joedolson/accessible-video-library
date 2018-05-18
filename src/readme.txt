@@ -7,7 +7,7 @@ Tested up to: 4.9
 Requires PHP: 5.3
 License: GPLv2 or later
 Text domain: accessible-video-library
-Stable tag: 1.1.4
+Stable tag: 1.2.0
 
 Generates a library for your video information where you can upload caption files, include transcripts, and upload subtitles for other languages.
 
@@ -44,7 +44,7 @@ Translating my plug-ins is always appreciated. Visit <a href="http://translate.j
 
 = 1.2.0 =
 
-* Updated tested to 4.9
+* Updated tested to 4.9; Updated requires to 4.9
 * Bug fix: exclude audio CSS
 * Support YouTube videos using native MediaElement implementation.
 * Support Vimeo videos
