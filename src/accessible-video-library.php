@@ -276,9 +276,9 @@ function your_function_add_formats( $fields ) {
 			</div>
 		</div>
 	</div>
-<?php avl_show_support_box(); ?>
+	<?php avl_show_support_box(); ?>
 </div>
-<?php
+	<?php
 }
 
 /**
@@ -396,7 +396,7 @@ $plugins_string
  * Display request to donate & info box.
  */
 function avl_show_support_box() {
-?>
+	?>
 <div class="postbox-container avl-narrow">
 <div class="metabox-holder">
 	<div class="meta-box-sortables">
@@ -428,7 +428,7 @@ function avl_show_support_box() {
 	</div>
 </div>
 </div>
-<?php
+	<?php
 }
 
 /**
@@ -1154,7 +1154,7 @@ function avl_return_value( $value, $column_name, $id ) {
  * Output CSS for width of new column
  */
 function avl_css() {
-?>
+	?>
 <style type="text/css">
 #avl_captions, #avl_transcript { width: 70px; }
 #avl_id { width: 50px; }
@@ -1166,7 +1166,7 @@ function avl_css() {
 .avl-shortcode label { font-weight: 700; }
 .avl-shortcode input { border: none; font-size: 1.2em; }
 </style>
-<?php
+	<?php
 }
 
 add_action( 'admin_init', 'avl_add' );
@@ -1241,6 +1241,6 @@ function avl_filter_dropdown() {
 			<option value="captions"<?php echo $captions; ?>><?php _e( 'Videos missing Captions', 'accessible-video-library' ); ?></option>
 			<option value="transcripts"<?php echo $transcripts; ?>><?php _e( 'Videos missing Transcripts', 'accessible-video-library' ); ?></option>
 		</select>
-	<?php
+		<?php
 	}
 }
