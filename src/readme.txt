@@ -7,7 +7,7 @@ Tested up to: 4.9
 Requires PHP: 5.3
 License: GPLv2 or later
 Text domain: accessible-video-library
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 
 Generates a library for your video information where you can upload caption files, include transcripts, and upload subtitles for other languages.
 
@@ -41,6 +41,11 @@ Translating my plug-ins is always appreciated. Visit <a href="http://translate.j
 3. Start uploading your videos and captions!
 
 == Changelog ==
+
+= 1.2.1 =
+
+* Bug fix: override some AVL CSS in fullscreen.
+* Change profile URL.
 
 = 1.2.0 =
 

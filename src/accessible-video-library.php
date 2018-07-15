@@ -17,7 +17,7 @@
  * License URI: http://www.gnu.org/license/gpl-2.0.txt
  * Text Domain: accessible-video-library
  * Domain Path: /lang
- * Version: 1.2.0
+ * Version: 1.2.1
  */
 
 /*
@@ -42,7 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$avl_version = '1.2.0';
+$avl_version = '1.2.1';
 // Filters.
 add_filter( 'post_updated_messages', 'avl_posttypes_messages' );
 
@@ -420,7 +420,7 @@ function avl_show_support_box() {
 					</div>
 				</form>
 			</li>
-			<li><a href="http://profiles.wordpress.org/users/joedolson/"><?php _e( 'Check out my other plug-ins', 'accessible-video-library' ); ?></a></li>
+			<li><a href="http://profiles.wordpress.org/joedolson/"><?php _e( 'Check out my other plug-ins', 'accessible-video-library' ); ?></a></li>
 			<li><a href="http://wordpress.org/plugins/accessible-video-library/"><?php _e( 'Rate this plug-in', 'accessible-video-library' ); ?></a></li>
 		</ul>
 		</div>
